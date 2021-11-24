@@ -10,43 +10,47 @@ import {createSiteMostCommentedFilmsTemplate} from './view/site-most-commented-v
 import {createPopupTemplate} from './view/site-popup-view.js';
 import {renderTemplate, RenderPosition} from './render.js';
 
-const siteHeaderElement = document.querySelector('.header');
-const siteMainElement = document.querySelector('.main');
-const siteBodyElement = document.querySelector('body');
+const renderBeforeEnd = (container, template)=> renderTemplate(container,template,RenderPosition.BEFOREEND);
 
-renderTemplate(siteHeaderElement, createSiteRatingTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(siteMainElement, createSiteMenuTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(siteMainElement, createSiteSortTemplate(), RenderPosition.BEFOREEND);
-renderTemplate(siteMainElement, createSiteFilmsTemplate(), RenderPosition.BEFOREEND);
+const renderFilmItems = (container, count)=>{
+  Array(count).fill(0).forEach(()=> renderBeforeEnd(container, createSiteFilmCardTemplate()));
+};
+const renderAllFilms = (container)=>{
+  renderBeforeEnd(container,createSiteAllFilmsTemplate());
+  renderFilmItems(document.querySelector('.films-list__container'), 5);
+  renderBeforeEnd(container, createShowMoreTemplate());
+};
+const renderTopRated = (container)=>{
+  renderBeforeEnd(container, createSiteTopRatedFilmsTemplate());
+  renderFilmItems( document.querySelector('.films-list--top-rated').querySelector('.films-list__container'), 2);
 
-const siteFilmsElement = document.querySelector('.films');
+};
+const renderMostCommented = (container)=>{
+  renderBeforeEnd(container, createSiteMostCommentedFilmsTemplate());
+  renderFilmItems(document.querySelector('.films-list--most-commented').querySelector('.films-list__container'), 2);
+};
 
-renderTemplate(siteFilmsElement, createSiteAllFilmsTemplate(), RenderPosition.BEFOREEND);
+const renderFilms = (container)=>{
+  renderAllFilms(container);
+  renderTopRated(container);
+  renderMostCommented(container);
+};
 
-const allFilmsContainer = document.querySelector('.films-list__container');
+const renderSite = (container)=> {
+  renderBeforeEnd(container,createSiteMenuTemplate());
+  renderBeforeEnd(container,createSiteSortTemplate());
+  renderBeforeEnd(container,createSiteFilmsTemplate());
+  renderFilms(document.querySelector('.films'));
+};
 
-for (let ii = 0; ii < 5; ii++) {
-  renderTemplate(allFilmsContainer, createSiteFilmCardTemplate(), RenderPosition.BEFOREEND);
-}
+renderBeforeEnd(
+  document.querySelector('.header'),
+  createSiteRatingTemplate(),
+);
 
-const allFilmsListElement = document.querySelector('.films-list');
+renderSite(document.querySelector('.main'));
 
-renderTemplate(allFilmsListElement, createShowMoreTemplate(), RenderPosition.BEFOREEND);
-
-renderTemplate(siteFilmsElement, createSiteTopRatedFilmsTemplate(), RenderPosition.BEFOREEND);
-
-const topRatedContainer = document.querySelector('.films-list--top-rated').querySelector('.films-list__container');
-
-for (let ii = 0; ii < 2; ii++) {
-  renderTemplate(topRatedContainer, createSiteFilmCardTemplate(), RenderPosition.BEFOREEND);
-}
-
-renderTemplate(siteFilmsElement, createSiteMostCommentedFilmsTemplate(), RenderPosition.BEFOREEND);
-
-const mostCommentedContainer = document.querySelector('.films-list--most-commented').querySelector('.films-list__container');
-
-for (let ii = 0; ii < 2; ii++) {
-  renderTemplate(mostCommentedContainer, createSiteFilmCardTemplate(), RenderPosition.BEFOREEND);
-}
-
-renderTemplate(siteBodyElement, createPopupTemplate(), RenderPosition.BEFOREEND);
+renderBeforeEnd(
+  document.querySelector('body'),
+  createPopupTemplate(),
+);
