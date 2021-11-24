@@ -4,7 +4,7 @@ import {createSiteSortTemplate} from './view/site-sort-view.js';
 import {createSiteFilmsTemplate} from './view/site-films-view.js';
 import {createShowMoreTemplate} from './view/site-show-more-view.js';
 import {createSiteAllFilmsTemplate} from './view/site-all-films-list-view.js';
-import {createSiteFilmCardTemplate} from './view/site-film-card-view.js'
+import {createSiteFilmCardTemplate} from './view/site-film-card-view.js';
 import {createSiteTopRatedFilmsTemplate} from './view/site-top-rated-view.js';
 import {createSiteMostCommentedFilmsTemplate} from './view/site-most-commented-view.js';
 import {createPopupTemplate} from './view/site-popup-view.js';
