@@ -20,12 +20,12 @@ const renderAllFilms = (container) => {
   renderBeforeEnd(container, createSiteAllFilmsTemplate());
   renderFilmItems(container.querySelector('.films-list__container'), 5);
   renderBeforeEnd(container, createShowMoreTemplate());
-}
+};
 
 const renderTopRated = (container) => {
   renderBeforeEnd(container, createSiteTopRatedFilmsTemplate());
   renderFilmItems(container.querySelector('.films-list--top-rated').querySelector('.films-list__container'), 2);
-}
+};
 
 const renderMostCommented = (container) => {
   renderBeforeEnd(container, createSiteMostCommentedFilmsTemplate());
@@ -36,23 +36,23 @@ const renderFilms = (container) => {
   renderAllFilms(container);
   renderTopRated(container);
   renderMostCommented(container);
-}
+};
 
 const renderSite = (container) => {
   renderBeforeEnd(container, createSiteMenuTemplate());
   renderBeforeEnd(container, createSiteSortTemplate());
   renderBeforeEnd(container, createSiteFilmsTemplate());
   renderFilms(container.querySelector('.films'));
-}
+};
 
 renderBeforeEnd(
   document.querySelector('header'),
   createSiteRatingTemplate()
-)
+);
 
-renderSite(document.querySelector('.main'))
+renderSite(document.querySelector('.main'));
 
 renderBeforeEnd(
   document.querySelector('body'),
   createPopupTemplate()
-)
+);
