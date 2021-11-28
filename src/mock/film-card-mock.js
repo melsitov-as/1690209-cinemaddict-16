@@ -111,12 +111,13 @@ const getAgeRating = () => `${getRandomPositiveInteger(0, 18)}+`;
 
 const getDateWatched = (data) => (data === false)? false: getPastDate(LAST_ONE_YEAR);
 
-const getCommentDate = () => {
-  const commentMinutesGap = getRandomPositiveInteger(0, MAX_COMMENT_MINUTES_GAP);
-  const date = dayjs();
-  const commentDate = date.add(-commentMinutesGap, 'minutes'). format('YYYY/MM/DD HH:mm');
-  return commentDate;
-};
+const getCommentDate = () => dayjs().add(
+  -getRandomPositiveInteger(
+    0,
+    MAX_COMMENT_MINUTES_GAP,
+  ),
+  'minutes',
+).format('YYYY/MM/DD HH:mm');
 
 const getComment = () => ({
   emoji: getRandomItem(EMOJIES_LIST),
