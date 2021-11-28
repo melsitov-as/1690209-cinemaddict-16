@@ -102,18 +102,7 @@ const getGenreTitle = (data) => data.length === 1? 'Genre': 'Genres';
 
 const getDescription = (data) => getRandomArray(data).join(' ');
 
-
-const getShortDescription = (data) => {
-  let shortDescription;
-  if (data.length > 140) {
-    shortDescription = data.slice(0, 138);
-    shortDescription += '...';
-  } else {
-    shortDescription = data;
-  }
-
-  return shortDescription;
-};
+const getShortDescription = (data) => data.length > 140? `${data.slice(0, 138)}&#8230;`: data;
 
 const getAgeRating = () => {
   const num = getRandomPositiveInteger(0, 18);
