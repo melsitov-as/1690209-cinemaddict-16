@@ -131,13 +131,7 @@ const getCommentsMockData = () => {
   return Array.from({length: numberOfComments}, getComment);
 };
 
-const getCommentsTitle = (data) => {
-  if (data === 1) {
-    return 'comment';
-  } else {
-    return 'comments';
-  }
-};
+const getCommentsTitle = (data) =>  (data === 1)?'comment': 'comments';
 
 export const getFilmCardMockData = () => {
   const releaseDate = getReleaseDate();
