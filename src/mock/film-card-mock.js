@@ -92,6 +92,7 @@ const getRandomArray = (array) => {
 };
 
 const LAST_HANDRED_YEARS= 36500;
+const LAST_ONE_YEAR = 365;
 
 const getDaysBack = (interval) => (-getRandomPositiveInteger(1, interval));
 
@@ -110,12 +111,10 @@ const getAgeRating = () => `${getRandomPositiveInteger(0, 18)}+`;
 
 const getDateWatched = (data) => {
   let dateWatched = '';
-  const maxDateDaysGap = 365;
-
   if (data === false) {
-    dateWatched = false;
+    dateWatched = false; //!!! различаются типы результата - можно потом с этим намучатся
   } else {
-    const daysGap = getRandomPositiveInteger(0, maxDateDaysGap);
+    const daysGap = getRandomPositiveInteger(0, LAST_ONE_YEAR);
     dateWatched = dayjs();
     dateWatched.add(-daysGap, 'days');
   }
