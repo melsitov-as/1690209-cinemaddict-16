@@ -88,11 +88,7 @@ const getRating = () => getRandomPositiveFloat(1, 10, 1);
 
 const shuffle = (array) => array.sort(()=>Math.random()-0.5);
 
-const getRandomArray = (array) => {
-  const shuffeledArray = shuffle(array);
-  const count = getRandomPositiveInteger(1, shuffeledArray.length);
-  return shuffeledArray.slice(0, count);
-};
+const getRandomArray = (array) =>  shuffle(array).slice(0, getRandomPositiveInteger(1, array.length));
 
 const getRandomNegativeYears = (interval) => (-getRandomPositiveInteger(1, interval));
 
