@@ -98,13 +98,7 @@ const getReleaseDate = () => {
   return date.add(-daysGap, 'day');
 };
 
-const getGenreTitle = (data) => {
-  if (data.length === 1) {
-    return 'Genre';
-  } else {
-    return 'Genres';
-  }
-};
+const getGenreTitle = (data) => data.length === 1? 'Genre': 'Genres';
 
 const getDescription = (data) => {
   const descriptionsArray = getRandomArray(data);
