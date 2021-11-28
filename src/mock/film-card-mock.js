@@ -21,44 +21,19 @@ const TITLES_LIST = [
   'Made for Each Other',
 ];
 
-const ORIGINAL_TITLES_LIST = [
-  'Original Title - 1',
-  'Original Title - 2',
-  'Original Title - 3',
-  'Original Title - 4',
-  'Original Title - 5',
-];
+const formatWithIndex = (value, index)=>`${value} - ${1+index}`;
+const makeArrayWithIndex = (count, value) => Array(count).fill(value).map(formatWithIndex);
 
-const DIRECTORS_LIST = [
-  'Director - 1',
-  'Director - 2',
-  'Director - 3',
-  'Director - 4',
-  'Director - 5',
-];
+const ORIGINAL_TITLES_LIST = makeArrayWithIndex(5,'Original Title');
 
-const SCREENWRITERS_LIST = [
-  ' Screenwriter - 1',
-  ' Screenwriter - 2',
-  ' Screenwriter - 3',
-];
+const DIRECTORS_LIST = makeArrayWithIndex(5,'Director');
 
-const ACTORS_LIST = [
-  ' Actor - 1',
-  ' Actor - 2',
-  ' Actor - 3',
-  ' Actor - 4',
-  ' Actor - 5',
-];
+const SCREENWRITERS_LIST = makeArrayWithIndex(3,'Screenwriter');
+
+const ACTORS_LIST = makeArrayWithIndex(5,'Actor');
 
 
-const COUNTRIES_LIST = [
-  'Country - 1',
-  'Country - 2',
-  'Country - 3',
-  'Country - 4',
-  'Country - 5',
-];
+const COUNTRIES_LIST = makeArrayWithIndex(5,'Country');
 
 const GENRES_LIST = [
   ' Drama',
@@ -90,13 +65,7 @@ const EMOJIES_LIST = [
   'angry.png',
 ];
 
-const AUTHORS_LIST = [
-  'Author - 1',
-  'Author - 2',
-  'Author - 3',
-  'Author - 4',
-  'Author - 5',
-];
+const AUTHORS_LIST = makeArrayWithIndex(5,'Author');
 
 
 // Генерирует случайный элемент в массиве
