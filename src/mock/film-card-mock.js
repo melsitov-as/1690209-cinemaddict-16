@@ -93,10 +93,11 @@ const getRandomArray = (array) => {
 
 const LAST_HANDRED_YEARS= 36500;
 const LAST_ONE_YEAR = 365;
+const MAX_COMMENT_MINUTES_GAP = 5256000;
+  
+const getRandomNegativeYears = (interval) => (-getRandomPositiveInteger(1, interval));
 
-const getDaysBack = (interval) => (-getRandomPositiveInteger(1, interval));
-
-const getPastDate = (interval) => dayjs().add(getDaysBack(interval), 'day');
+const getPastDate = (interval) => dayjs().add(getRandomNegativeYears(interval), 'day');
 
 const getReleaseDate = () => getPastDate(LAST_HANDRED_YEARS);
 
@@ -111,8 +112,7 @@ const getAgeRating = () => `${getRandomPositiveInteger(0, 18)}+`;
 const getDateWatched = (data) => (data === false)? false: getPastDate(LAST_ONE_YEAR);
 
 const getCommentDate = () => {
-  const maxCommentMinutesGap = 5256000;
-  const commentMinutesGap = getRandomPositiveInteger(0, maxCommentMinutesGap);
+  const commentMinutesGap = getRandomPositiveInteger(0, MAX_COMMENT_MINUTES_GAP);
   const date = dayjs();
   const commentDate = date.add(-commentMinutesGap, 'minutes'). format('YYYY/MM/DD HH:mm');
   return commentDate;
