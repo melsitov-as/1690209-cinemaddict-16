@@ -13,11 +13,11 @@ import { getFilmCardMockData } from './mock/film-card-mock.js';
 import { generateFilter } from './mock/filter.js';
 import { createPopupCommentTemplate } from './view/site-comment-view.js';
 
-const FILM_CARDS_COUNT = 15;
+const FILM_CARDS_COUNT = 42;
 const FILM_CARDS_COUNT_PER_STEP = 5;
 
-const filmCards = Array.from({length: FILM_CARDS_COUNT}, getFilmCardMockData);
-const filters = generateFilter(filmCards);
+let filmCards = null;
+let filters = null;
 
 const renderBeforeEnd = (container, template) => renderTemplate(container, template, RenderPosition.BEFOREEND);
 
@@ -94,6 +94,11 @@ const renderPopup = (data) => {
     data
   );
 };
+
+
+filmCards = Array.from({length: FILM_CARDS_COUNT}, getFilmCardMockData);
+filters = generateFilter(filmCards);
+
 
 renderBeforeEnd(
   document.querySelector('header'),
