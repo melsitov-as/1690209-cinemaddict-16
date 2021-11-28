@@ -94,7 +94,14 @@ const getRandomArray = (array) => {
 const LAST_HANDRED_YEARS= 36500;
 const LAST_ONE_YEAR = 365;
 const MAX_COMMENT_MINUTES_GAP = 5256000;
-  
+const MAX_ID = 10000;
+const MAX_DURATION = 240;
+const MAX_COMMENTS = 15;
+const RELEASE_DATE_FORMAT = 'DD MMMM YYYY';
+const YEAR_FORMAT = 'YYYY';
+const COMMENTS_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
+const ELLIPSIS = '&#8230;';
+
 const getRandomNegativeYears = (interval) => (-getRandomPositiveInteger(1, interval));
 
 const getPastDate = (interval) => dayjs().add(getRandomNegativeYears(interval), 'day');
@@ -105,7 +112,7 @@ const getGenreTitle = (data) => data.length === 1? 'Genre': 'Genres';
 
 const getDescription = (data) => getRandomArray(data).join(' ');
 
-const getShortDescription = (data) => data.length > 140? `${data.slice(0, 138)}&#8230;`: data;
+const getShortDescription = (data) => data.length > 140? `${data.slice(0, 138)}${ELLIPSIS}`: data;
 
 const getAgeRating = () => `${getRandomPositiveInteger(0, 18)}+`;
 
@@ -117,7 +124,7 @@ const getCommentDate = () => dayjs().add(
     MAX_COMMENT_MINUTES_GAP,
   ),
   'minutes',
-).format('YYYY/MM/DD HH:mm');
+).format(COMMENTS_DATE_FORMAT);
 
 const getComment = () => ({
   emoji: getRandomItem(EMOJIES_LIST),
@@ -127,21 +134,23 @@ const getComment = () => ({
 });
 
 const getCommentsMockData = () => {
-  const numberOfComments = getRandomPositiveInteger(0, 15);
+  const numberOfComments = getRandomPositiveInteger(0, MAX_COMMENTS);
   return Array.from({length: numberOfComments}, getComment);
 };
 
 const getCommentsTitle = (data) =>  (data === 1)?'comment': 'comments';
 
+const getRandomFlag = ()=>Boolean(getRandomPositiveInteger(0, 1));
+
 export const getFilmCardMockData = () => {
   const releaseDate = getReleaseDate();
   const genre = getRandomArray(GENRES_LIST);
   const description = getDescription(SENTENCES_LIST);
-  const isWatched = Boolean(getRandomPositiveInteger(0, 1));
+  const isWatched = getRandomFlag();
   const commentsData = getCommentsMockData();
   return {
-    id: getRandomPositiveInteger(0, 10000),
-    number: getRandomPositiveInteger(0, 10000),
+    id: getRandomPositiveInteger(0, MAX_ID),
+    number: getRandomPositiveInteger(0, MAX_ID),
     image: getRandomItem(IMAGES_LIST),
     title: getRandomItem(TITLES_LIST),
     originalTitle: getRandomItem(ORIGINAL_TITLES_LIST),
@@ -150,18 +159,18 @@ export const getFilmCardMockData = () => {
     screenwriters: getRandomArray(SCREENWRITERS_LIST),
     actors: getRandomArray(ACTORS_LIST),
     releaseDate: releaseDate,
-    releaseDateDMY: releaseDate.format('DD MMMM YYYY'),
-    year: releaseDate.format('YYYY'),
-    totalDuration: getRandomPositiveInteger(0, 240),
+    releaseDateDMY: releaseDate.format(RELEASE_DATE_FORMAT),
+    year: releaseDate.format(YEAR_FORMAT),
+    totalDuration: getRandomPositiveInteger(0, MAX_DURATION),
     country: getRandomItem(COUNTRIES_LIST),
     genre: genre,
     genreTitle: getGenreTitle(genre),
     description: description,
     shortDescription: getShortDescription(description),
     ageRating: getAgeRating(),
-    isInWatchlist: Boolean(getRandomPositiveInteger(0, 1)),
+    isInWatchlist: getRandomFlag(),
     isWatched: isWatched,
-    isInFavorites: Boolean(getRandomPositiveInteger(0, 1)),
+    isInFavorites: getRandomFlag(),
     dateWatched: getDateWatched(isWatched),
     isRegular: false,
     isTopRated: false,
