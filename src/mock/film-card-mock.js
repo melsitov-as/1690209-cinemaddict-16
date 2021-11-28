@@ -1,6 +1,17 @@
 import dayjs from 'dayjs';
 import { getRandomPositiveFloat, getRandomPositiveInteger } from '../utils/common.js';
 
+const LAST_HANDRED_YEARS= 36500;
+const LAST_ONE_YEAR = 365;
+const MAX_COMMENT_MINUTES_GAP = 5256000;
+const MAX_ID = 10000;
+const MAX_DURATION = 240;
+const MAX_COMMENTS = 15;
+const RELEASE_DATE_FORMAT = 'DD MMMM YYYY';
+const YEAR_FORMAT = 'YYYY';
+const COMMENTS_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
+const ELLIPSIS = '&#8230;';
+
 const IMAGES_LIST = [
   'popeye-meets-sinbad.png',
   'sagebrush-trail.jpg',
@@ -90,17 +101,6 @@ const getRandomArray = (array) => {
   const count = getRandomPositiveInteger(1, shuffeledArray.length);
   return shuffeledArray.slice(0, count);
 };
-
-const LAST_HANDRED_YEARS= 36500;
-const LAST_ONE_YEAR = 365;
-const MAX_COMMENT_MINUTES_GAP = 5256000;
-const MAX_ID = 10000;
-const MAX_DURATION = 240;
-const MAX_COMMENTS = 15;
-const RELEASE_DATE_FORMAT = 'DD MMMM YYYY';
-const YEAR_FORMAT = 'YYYY';
-const COMMENTS_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
-const ELLIPSIS = '&#8230;';
 
 const getRandomNegativeYears = (interval) => (-getRandomPositiveInteger(1, interval));
 
