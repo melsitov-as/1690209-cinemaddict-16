@@ -121,10 +121,13 @@ const getComment = () => ({
   date: getCommentDate()
 });
 
-const getCommentsMockData = () => {
-  const numberOfComments = getRandomPositiveInteger(0, MAX_COMMENTS);
-  return Array.from({length: numberOfComments}, getComment);
-};
+const getCommentsMockData = () => Array.from(
+  {
+    length: getRandomPositiveInteger(0, MAX_COMMENTS),
+  },
+  getComment,
+);
+
 
 const getCommentsTitle = (data) =>  (data === 1)?'comment': 'comments';
 
