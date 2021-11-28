@@ -108,14 +108,7 @@ const getShortDescription = (data) => data.length > 140? `${data.slice(0, 138)}&
 
 const getAgeRating = () => `${getRandomPositiveInteger(0, 18)}+`;
 
-
-const getDateWatched = (data) => {
-  if (data === false) {
-    return false; //!!! различаются типы результата - можно потом с этим намучатся
-  } else {
-    return getPastDate(LAST_ONE_YEAR);
-  }
-};
+const getDateWatched = (data) => (data === false)? false: getPastDate(LAST_ONE_YEAR);
 
 const getCommentDate = () => {
   const maxCommentMinutesGap = 5256000;
