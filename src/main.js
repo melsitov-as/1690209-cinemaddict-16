@@ -41,8 +41,7 @@ const showMoreFilms = (container) => {
 
   const showMoreButton = document.querySelector('.films-list__show-more');
 
-  showMoreButton.addEventListener('click', (evt) => {
-    evt.preventDefault();
+  showMoreButton.addEventListener('click', () => {
     filmCards
       .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
       .forEach((filmCard) => renderBeforeEnd(container, createSiteFilmCardTemplate(filmCard)));
