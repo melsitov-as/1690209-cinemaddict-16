@@ -25,44 +25,22 @@ export const getDuration = (data) => {
   }
 };
 
-export const addStatus = (filmCardData) => {
-  const status = {
-    isInWatchlistActive: '',
-    isWatchedActive: '',
-    isInFavoritesActive: '',
-  };
-  if (filmCardData.isInWatchlist === true) {
-    status.isInWatchlistActive = 'film-card__controls-item--active';
-  }
+const CSS_SELECTOR_CARD_CONTROL_ACTIVE = 'film-card__controls-item--active';
+const CSS_SELECTOR_DETAILS_CONTROL_ACTIVE = 'film-details__control-button--active';
 
-  if (filmCardData.isWatched === true) {
-    status.isWatchedActive = 'film-card__controls-item--active';
-  }
+const getStringOrEmpty = (flag, value)=>flag?value:'';
 
-  if (filmCardData.isInFavorites === true) {
-    status.isInFavoritesActive = 'film-card__controls-item--active';
-  }
+const getCardSelector = (flag)=>getStringOrEmpty(flag,CSS_SELECTOR_CARD_CONTROL_ACTIVE);
+const getDetailsSelector = (flag)=>getStringOrEmpty(flag, CSS_SELECTOR_DETAILS_CONTROL_ACTIVE);
 
-  return status;
-};
+export const addStatus = (filmCardData) => ({
+  isInWatchlistActive: getCardSelector(filmCardData.isInWatchlist),
+  isWatchedActive: getCardSelector(filmCardData.isWatched),
+  isInFavoritesActive: getCardSelector(filmCardData.isInFavorites),
+});
 
-export const addPopupStatus = (filmCardData) => {
-  const status = {
-    isInWatchlistActive: '',
-    isWatchedActive: '',
-    isInFavoritesActive: '',
-  };
-  if (filmCardData.isInWatchlist === true) {
-    status.isInWatchlistActive = 'film-details__control-button--active';
-  }
-
-  if (filmCardData.isWatched === true) {
-    status.isWatchedActive = 'film-details__control-button--active';
-  }
-
-  if (filmCardData.isInFavorites === true) {
-    status.isInFavoritesActive = 'film-details__control-button--active';
-  }
-
-  return status;
-};
+export const addPopupStatus = (filmCardData) => ( {
+  isInWatchlistActive: getDetailsSelector(filmCardData.isInWatchlist),
+  isWatchedActive: getDetailsSelector(filmCardData.isWatched),
+  isInFavoritesActive: getDetailsSelector(filmCardData.isInFavorites),
+});
