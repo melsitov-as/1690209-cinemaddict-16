@@ -13,11 +13,11 @@ import { getFilmCardMockData } from './mock/film-card-mock.js';
 import { generateFilter } from './mock/filter.js';
 import { createPopupCommentTemplate } from './view/site-comment-view.js';
 
-const FILM_CARDS_COUNT = 15;
+const FILM_CARDS_COUNT = 42;
 const FILM_CARDS_COUNT_PER_STEP = 5;
 
-const filmCards = Array.from({length: FILM_CARDS_COUNT}, getFilmCardMockData);
-const filters = generateFilter(filmCards);
+let filmCards = null;
+let filters = null;
 
 const renderBeforeEnd = (container, template) => renderTemplate(container, template, RenderPosition.BEFOREEND);
 
@@ -27,25 +27,15 @@ const renderFilmItems = (container, count) => {
   }
 };
 
-const renderAllFilms = (container) => {
-  renderBeforeEnd(container, createSiteAllFilmsTemplate());
-  renderFilmItems(container.querySelector('.films-list__container'), FILM_CARDS_COUNT_PER_STEP);
-
-  if (filmCards.length > FILM_CARDS_COUNT_PER_STEP) {
-    renderBeforeEnd(container, createShowMoreTemplate());
-  }
-};
-
-const showMoreFilms = (container) => {
+const initializeShowMoreClickHandler = (container, allFilmsContainer) => {
   let renderedFilmCardsCount = FILM_CARDS_COUNT_PER_STEP;
 
-  const showMoreButton = document.querySelector('.films-list__show-more');
+  const showMoreButton = container.querySelector('.films-list__show-more');
 
-  showMoreButton.addEventListener('click', (evt) => {
-    evt.preventDefault();
+  showMoreButton.addEventListener('click', () => {
     filmCards
       .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
-      .forEach((filmCard) => renderBeforeEnd(container, createSiteFilmCardTemplate(filmCard)));
+      .forEach((filmCard) => renderBeforeEnd(allFilmsContainer, createSiteFilmCardTemplate(filmCard)));
 
     renderedFilmCardsCount += FILM_CARDS_COUNT_PER_STEP;
 
@@ -53,6 +43,17 @@ const showMoreFilms = (container) => {
       showMoreButton.remove();
     }
   });
+};
+
+const renderAllFilms = (container) => {
+  renderBeforeEnd(container, createSiteAllFilmsTemplate());
+  const allFilmsContainer = container.querySelector('.films-list__container');
+  renderFilmItems(allFilmsContainer, FILM_CARDS_COUNT_PER_STEP);
+
+  if (filmCards.length > FILM_CARDS_COUNT_PER_STEP) {
+    renderBeforeEnd(container, createShowMoreTemplate());
+    initializeShowMoreClickHandler(container,allFilmsContainer);
+  }
 };
 
 const renderTopRated = (container) => {
@@ -76,7 +77,6 @@ const renderSite = (container) => {
   renderBeforeEnd(container, createSiteSortTemplate());
   renderBeforeEnd(container, createSiteFilmsTemplate());
   renderFilms(container.querySelector('.films'));
-  showMoreFilms(container.querySelector('.films-list__container'));
 };
 
 const renderComments = (container, filmCardData) => {
@@ -94,6 +94,11 @@ const renderPopup = (data) => {
     data
   );
 };
+
+
+filmCards = Array.from({length: FILM_CARDS_COUNT}, getFilmCardMockData);
+filters = generateFilter(filmCards);
+
 
 renderBeforeEnd(
   document.querySelector('header'),
