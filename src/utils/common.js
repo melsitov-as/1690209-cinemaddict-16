@@ -1,3 +1,7 @@
+
+const CSS_SELECTOR_CARD_CONTROL_ACTIVE = 'film-card__controls-item--active';
+const CSS_SELECTOR_DETAILS_CONTROL_ACTIVE = 'film-details__control-button--active';
+
 // Генерирует случайное дробное число
 export const getRandomPositiveFloat = (a, b, digits = 1) => {
   const lower = Math.min(Math.abs(a), Math.abs(b));
@@ -24,9 +28,6 @@ export const getDuration = (data) => {
     return `${Math.floor(data / 60)}h ${data % 60}m`;
   }
 };
-
-const CSS_SELECTOR_CARD_CONTROL_ACTIVE = 'film-card__controls-item--active';
-const CSS_SELECTOR_DETAILS_CONTROL_ACTIVE = 'film-details__control-button--active';
 
 const getStringOrEmpty = (flag, value)=>flag?value:'';
 
