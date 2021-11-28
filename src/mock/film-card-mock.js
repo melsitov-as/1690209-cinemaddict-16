@@ -110,16 +110,11 @@ const getAgeRating = () => `${getRandomPositiveInteger(0, 18)}+`;
 
 
 const getDateWatched = (data) => {
-  let dateWatched = '';
   if (data === false) {
-    dateWatched = false; //!!! различаются типы результата - можно потом с этим намучатся
+    return false; //!!! различаются типы результата - можно потом с этим намучатся
   } else {
-    const daysGap = getRandomPositiveInteger(0, LAST_ONE_YEAR);
-    dateWatched = dayjs();
-    dateWatched.add(-daysGap, 'days');
+    return getPastDate(LAST_ONE_YEAR);
   }
-
-  return dateWatched;
 };
 
 const getCommentDate = () => {
