@@ -9,17 +9,50 @@ import { createSiteTopRatedFilmsTemplate } from './view/site-top-rated-view.js';
 import { createSiteMostCommentedFilmsTemplate } from './view/site-most-commented-view.js';
 import { createPopupTemplate } from './view/site-popup-view.js';
 import { renderTemplate, RenderPosition } from './render.js';
+import { getFilmCardMockData } from './mock/film-card-mock.js';
+import { generateFilter } from './mock/filter.js';
+import { createPopupCommentTemplate } from './view/site-comment-view.js';
+
+const FILM_CARDS_COUNT = 15;
+const FILM_CARDS_COUNT_PER_STEP = 5;
+
+const filmCards = Array.from({length: FILM_CARDS_COUNT}, getFilmCardMockData);
+const filters = generateFilter(filmCards);
 
 const renderBeforeEnd = (container, template) => renderTemplate(container, template, RenderPosition.BEFOREEND);
 
 const renderFilmItems = (container, count) => {
-  Array(count).fill(0).forEach(() => renderBeforeEnd(container, createSiteFilmCardTemplate()));
+  for (let ii = 0; ii < Math.min(filmCards.length, count); ii++) {
+    renderBeforeEnd(container, createSiteFilmCardTemplate(filmCards[ii]));
+  }
 };
 
 const renderAllFilms = (container) => {
   renderBeforeEnd(container, createSiteAllFilmsTemplate());
-  renderFilmItems(container.querySelector('.films-list__container'), 5);
-  renderBeforeEnd(container, createShowMoreTemplate());
+  renderFilmItems(container.querySelector('.films-list__container'), FILM_CARDS_COUNT_PER_STEP);
+
+  if (filmCards.length > FILM_CARDS_COUNT_PER_STEP) {
+    renderBeforeEnd(container, createShowMoreTemplate());
+  }
+};
+
+const showMoreFilms = (container) => {
+  let renderedFilmCardsCount = FILM_CARDS_COUNT_PER_STEP;
+
+  const showMoreButton = document.querySelector('.films-list__show-more');
+
+  showMoreButton.addEventListener('click', (evt) => {
+    evt.preventDefault();
+    filmCards
+      .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
+      .forEach((filmCard) => renderBeforeEnd(container, createSiteFilmCardTemplate(filmCard)));
+
+    renderedFilmCardsCount += FILM_CARDS_COUNT_PER_STEP;
+
+    if (renderedFilmCardsCount >= filmCards.length) {
+      showMoreButton.remove();
+    }
+  });
 };
 
 const renderTopRated = (container) => {
@@ -39,10 +72,27 @@ const renderFilms = (container) => {
 };
 
 const renderSite = (container) => {
-  renderBeforeEnd(container, createSiteMenuTemplate());
+  renderBeforeEnd(container, createSiteMenuTemplate(filters));
   renderBeforeEnd(container, createSiteSortTemplate());
   renderBeforeEnd(container, createSiteFilmsTemplate());
   renderFilms(container.querySelector('.films'));
+  showMoreFilms(container.querySelector('.films-list__container'));
+};
+
+const renderComments = (container, filmCardData) => {
+  filmCardData.comments.forEach((item) => renderBeforeEnd(container, createPopupCommentTemplate(item)));
+};
+
+const renderPopup = (data) => {
+  renderBeforeEnd(
+    document.querySelector('body'),
+    createPopupTemplate(data)
+  );
+
+  renderComments(
+    document.querySelector('.film-details__comments-list'),
+    data
+  );
 };
 
 renderBeforeEnd(
@@ -52,7 +102,5 @@ renderBeforeEnd(
 
 renderSite(document.querySelector('.main'));
 
-renderBeforeEnd(
-  document.querySelector('body'),
-  createPopupTemplate()
-);
+
+renderPopup(filmCards[0]);
