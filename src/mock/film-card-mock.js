@@ -91,12 +91,13 @@ const getRandomArray = (array) => {
   return shuffeledArray.slice(0, count);
 };
 
-const getReleaseDate = () => {
-  const maxDaysGap = 36500;
-  const date = dayjs();
-  const daysGap = getRandomPositiveInteger(1, maxDaysGap);
-  return date.add(-daysGap, 'day');
-};
+const LAST_HANDRED_YEARS= 36500;
+
+const getDaysBack = (interval) => (-getRandomPositiveInteger(1, interval));
+
+const getPastDate = (interval) => dayjs().add(getDaysBack(interval), 'day');
+
+const getReleaseDate = () => getPastDate(LAST_HANDRED_YEARS);
 
 const getGenreTitle = (data) => data.length === 1? 'Genre': 'Genres';
 
@@ -104,10 +105,8 @@ const getDescription = (data) => getRandomArray(data).join(' ');
 
 const getShortDescription = (data) => data.length > 140? `${data.slice(0, 138)}&#8230;`: data;
 
-const getAgeRating = () => {
-  const num = getRandomPositiveInteger(0, 18);
-  return `${num}+`;
-};
+const getAgeRating = () => `${getRandomPositiveInteger(0, 18)}+`;
+
 
 const getDateWatched = (data) => {
   let dateWatched = '';
