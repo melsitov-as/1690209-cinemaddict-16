@@ -100,13 +100,7 @@ const getReleaseDate = () => {
 
 const getGenreTitle = (data) => data.length === 1? 'Genre': 'Genres';
 
-const getDescription = (data) => {
-  const descriptionsArray = getRandomArray(data);
-  let description = descriptionsArray.toString();
-  const re = /,/gi;
-  description = description.replace(re, '');
-  return description;
-};
+const getDescription = (data) => getRandomArray(data).join(' ');
 
 
 const getShortDescription = (data) => {
