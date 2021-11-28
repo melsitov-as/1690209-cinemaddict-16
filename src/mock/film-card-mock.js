@@ -86,15 +86,7 @@ const getRating = () => getRandomPositiveFloat(1, 10, 1);
 
 // Класс Генерирует случайный массив
 
-const shuffle = (array) => {
-  for (let kk = 0; kk < array.length; kk++) {
-    for (let ii = array.length - 1; ii > 0; ii--) {
-      const jj = Math.floor(Math.random() * (ii + 1));
-      [array[ii], array[jj]] = [array[jj], array[ii]];
-    }
-  }
-  return array;
-};
+const shuffle = (array) => array.sort(()=>Math.random()-0.5);
 
 const getRandomArray = (array) => {
   const shuffeledArray = shuffle(array);
