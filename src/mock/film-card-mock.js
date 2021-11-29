@@ -1,6 +1,18 @@
 import dayjs from 'dayjs';
 import { getRandomPositiveFloat, getRandomPositiveInteger } from '../utils/common.js';
 
+
+const LAST_HANDRED_YEARS= 36500;
+const LAST_ONE_YEAR = 365;
+const MAX_COMMENT_MINUTES_GAP = 5256000;
+const MAX_ID = 10000;
+const MAX_DURATION = 240;
+const MAX_COMMENTS = 15;
+const RELEASE_DATE_FORMAT = 'DD MMMM YYYY';
+const YEAR_FORMAT = 'YYYY';
+const COMMENTS_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
+const ELLIPSIS = '&#8230;';
+
 const IMAGES_LIST = [
   'popeye-meets-sinbad.png',
   'sagebrush-trail.jpg',
@@ -19,45 +31,6 @@ const TITLES_LIST = [
   'The Great Flamarion',
   'Santa Claus Conquers the Martians',
   'Made for Each Other',
-];
-
-const ORIGINAL_TITLES_LIST = [
-  'Original Title - 1',
-  'Original Title - 2',
-  'Original Title - 3',
-  'Original Title - 4',
-  'Original Title - 5',
-];
-
-const DIRECTORS_LIST = [
-  'Director - 1',
-  'Director - 2',
-  'Director - 3',
-  'Director - 4',
-  'Director - 5',
-];
-
-const SCREENWRITERS_LIST = [
-  ' Screenwriter - 1',
-  ' Screenwriter - 2',
-  ' Screenwriter - 3',
-];
-
-const ACTORS_LIST = [
-  ' Actor - 1',
-  ' Actor - 2',
-  ' Actor - 3',
-  ' Actor - 4',
-  ' Actor - 5',
-];
-
-
-const COUNTRIES_LIST = [
-  'Country - 1',
-  'Country - 2',
-  'Country - 3',
-  'Country - 4',
-  'Country - 5',
 ];
 
 const GENRES_LIST = [
@@ -90,14 +63,19 @@ const EMOJIES_LIST = [
   'angry.png',
 ];
 
-const AUTHORS_LIST = [
-  'Author - 1',
-  'Author - 2',
-  'Author - 3',
-  'Author - 4',
-  'Author - 5',
-];
+const formatWithIndex = (value, index)=>`${value} - ${1+index}`;
+const makeArrayWithIndex = (count, value) => Array(count).fill(value).map(formatWithIndex);
 
+const AUTHORS_LIST = makeArrayWithIndex(5,'Author');
+const ORIGINAL_TITLES_LIST = makeArrayWithIndex(5,'Original Title');
+
+const DIRECTORS_LIST = makeArrayWithIndex(5,'Director');
+
+const SCREENWRITERS_LIST = makeArrayWithIndex(3,'Screenwriter');
+
+const ACTORS_LIST = makeArrayWithIndex(5,'Actor');
+
+const COUNTRIES_LIST = makeArrayWithIndex(5,'Country');
 
 // Генерирует случайный элемент в массиве
 export const getRandomItem = (data) => data[getRandomPositiveInteger(0, data.length - 1)];
@@ -106,85 +84,33 @@ const getRating = () => getRandomPositiveFloat(1, 10, 1);
 
 // Класс Генерирует случайный массив
 
-const shuffle = (array) => {
-  for (let kk = 0; kk < array.length; kk++) {
-    for (let ii = array.length - 1; ii > 0; ii--) {
-      const jj = Math.floor(Math.random() * (ii + 1));
-      [array[ii], array[jj]] = [array[jj], array[ii]];
-    }
-  }
-  return array;
-};
+const shuffle = (array) => array.sort(()=>Math.random()-0.5);
 
-const getRandomArray = (array) => {
-  const shuffeledArray = shuffle(array);
-  const count = getRandomPositiveInteger(1, shuffeledArray.length);
-  return shuffeledArray.slice(0, count);
-};
+const getRandomArray = (array) =>  shuffle(array).slice(0, getRandomPositiveInteger(1, array.length));
 
-const getReleaseDate = () => {
-  const maxDaysGap = 36500;
-  const date = dayjs();
-  const daysGap = getRandomPositiveInteger(1, maxDaysGap);
-  return date.add(-daysGap, 'day');
-};
+const getRandomNegativeYears = (interval) => (-getRandomPositiveInteger(1, interval));
 
-const getGenreTitle = (data) => {
-  if (data.length === 1) {
-    return 'Genre';
-  } else {
-    return 'Genres';
-  }
-};
+const getPastDate = (interval) => dayjs().add(getRandomNegativeYears(interval), 'day');
 
-const getDescription = (data) => {
-  const descriptionsArray = getRandomArray(data);
-  let description = descriptionsArray.toString();
-  const re = /,/gi;
-  description = description.replace(re, '');
-  return description;
-};
+const getReleaseDate = () => getPastDate(LAST_HANDRED_YEARS);
 
+const getGenreTitle = (data) => data.length === 1? 'Genre': 'Genres';
 
-const getShortDescription = (data) => {
-  let shortDescription;
-  if (data.length > 140) {
-    shortDescription = data.slice(0, 138);
-    shortDescription += '...';
-  } else {
-    shortDescription = data;
-  }
+const getDescription = (data) => getRandomArray(data).join(' ');
 
-  return shortDescription;
-};
+const getShortDescription = (data) => data.length > 140? `${data.slice(0, 138)}${ELLIPSIS};`: data;
 
-const getAgeRating = () => {
-  const num = getRandomPositiveInteger(0, 18);
-  return `${num}+`;
-};
+const getAgeRating = () => `${getRandomPositiveInteger(0, 18)}+`;
 
-const getDateWatched = (data) => {
-  let dateWatched = '';
-  const maxDateDaysGap = 365;
+const getDateWatched = (data) => (data === false)? false: getPastDate(LAST_ONE_YEAR);
 
-  if (data === false) {
-    dateWatched = false;
-  } else {
-    const daysGap = getRandomPositiveInteger(0, maxDateDaysGap);
-    dateWatched = dayjs();
-    dateWatched.add(-daysGap, 'days');
-  }
-
-  return dateWatched;
-};
-
-const getCommentDate = () => {
-  const maxCommentMinutesGap = 5256000;
-  const commentMinutesGap = getRandomPositiveInteger(0, maxCommentMinutesGap);
-  const date = dayjs();
-  const commentDate = date.add(-commentMinutesGap, 'minutes'). format('YYYY/MM/DD HH:mm');
-  return commentDate;
-};
+const getCommentDate = () => dayjs().add(
+  -getRandomPositiveInteger(
+    0,
+    MAX_COMMENT_MINUTES_GAP,
+  ),
+  'minutes',
+).format(COMMENTS_DATE_FORMAT);
 
 const getComment = () => ({
   emoji: getRandomItem(EMOJIES_LIST),
@@ -193,28 +119,27 @@ const getComment = () => ({
   date: getCommentDate()
 });
 
-const getCommentsMockData = () => {
-  const numberOfComments = getRandomPositiveInteger(0, 15);
-  return Array.from({length: numberOfComments}, getComment);
-};
+const getCommentsMockData = () => Array.from(
+  {
+    length: getRandomPositiveInteger(0, MAX_COMMENTS),
+  },
+  getComment,
+);
 
-const getCommentsTitle = (data) => {
-  if (data === 1) {
-    return 'comment';
-  } else {
-    return 'comments';
-  }
-};
+
+const getCommentsTitle = (data) =>  (data === 1)?'comment': 'comments';
+
+const getRandomFlag = ()=>Boolean(getRandomPositiveInteger(0, 1));
 
 export const getFilmCardMockData = () => {
   const releaseDate = getReleaseDate();
   const genre = getRandomArray(GENRES_LIST);
   const description = getDescription(SENTENCES_LIST);
-  const isWatched = Boolean(getRandomPositiveInteger(0, 1));
+  const isWatched = getRandomFlag();
   const commentsData = getCommentsMockData();
   return {
-    id: getRandomPositiveInteger(0, 10000),
-    number: getRandomPositiveInteger(0, 10000),
+    id: getRandomPositiveInteger(0, MAX_ID),
+    number: getRandomPositiveInteger(0, MAX_ID),
     image: getRandomItem(IMAGES_LIST),
     title: getRandomItem(TITLES_LIST),
     originalTitle: getRandomItem(ORIGINAL_TITLES_LIST),
@@ -223,18 +148,18 @@ export const getFilmCardMockData = () => {
     screenwriters: getRandomArray(SCREENWRITERS_LIST),
     actors: getRandomArray(ACTORS_LIST),
     releaseDate: releaseDate,
-    releaseDateDMY: releaseDate.format('DD MMMM YYYY'),
-    year: releaseDate.format('YYYY'),
-    totalDuration: getRandomPositiveInteger(0, 240),
+    releaseDateDMY: releaseDate.format(RELEASE_DATE_FORMAT),
+    year: releaseDate.format(YEAR_FORMAT),
+    totalDuration: getRandomPositiveInteger(0, MAX_DURATION),
     country: getRandomItem(COUNTRIES_LIST),
     genre: genre,
     genreTitle: getGenreTitle(genre),
     description: description,
     shortDescription: getShortDescription(description),
     ageRating: getAgeRating(),
-    isInWatchlist: Boolean(getRandomPositiveInteger(0, 1)),
+    isInWatchlist: getRandomFlag(),
     isWatched: isWatched,
-    isInFavorites: Boolean(getRandomPositiveInteger(0, 1)),
+    isInFavorites: getRandomFlag(),
     dateWatched: getDateWatched(isWatched),
     isRegular: false,
     isTopRated: false,
