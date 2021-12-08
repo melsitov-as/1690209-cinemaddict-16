@@ -1,5 +1,6 @@
 import { getDuration } from '../utils/common.js';
 import { addStatus } from '../utils/common.js';
+import { createElement } from "../render.js";
 
 export const createSiteFilmCardTemplate = (filmCardData) => {
   const durationInHM = getDuration(filmCardData.totalDuration);
@@ -24,3 +25,34 @@ export const createSiteFilmCardTemplate = (filmCardData) => {
   </div>
 </article>`;
 };
+
+
+export default class SiteFilmCardView {
+  #element = null;
+  #filmCardData = null;
+
+  constructor(filmCardData) {
+    this.#filmCardData = filmCardData;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element
+  }
+
+  get template() {
+    return createSiteFilmCardTemplate(this.#filmCardData);
+  }
+
+
+  get filmCardData() {
+    return this.#filmCardData;
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
