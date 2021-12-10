@@ -1,4 +1,4 @@
-import { createElement } from "../render.js";
+import { createElement } from '../render.js';
 
 const createSiteMenuTemplate = (filters) => `<nav class="main-navigation">
     <div class="main-navigation__items">
@@ -24,7 +24,7 @@ export default class SiteMenuView {
       this.#element = createElement(this.template);
     }
 
-    return this.#element
+    return this.#element;
   }
 
   get template() {

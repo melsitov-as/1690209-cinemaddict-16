@@ -1,4 +1,4 @@
-import { createElement } from "../render.js";
+import { createElement } from '../render.js';
 
 const createSiteRatingTemplate = () => `<section class="header__profile profile">
     <p class="profile__rating">Movie Buff</p>

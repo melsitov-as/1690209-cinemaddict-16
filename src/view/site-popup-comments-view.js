@@ -1,4 +1,4 @@
-import { createElement } from "../render.js";
+import { createElement } from '../render.js';
 
 const createPopupCommentTemplate = (commentData) => `<li class="film-details__comment">
     <span class="film-details__comment-emoji">
@@ -28,16 +28,11 @@ export default class SitePopupCommentsView {
       this.#element = createElement(this.template);
     }
 
-    return this.#element
+    return this.#element;
   }
 
   get template() {
     return createPopupCommentTemplate(this.#commentData);
-  }
-
-  get data() {
-    console.log('commentData: ', this.#commentData);
-    console.log('element: ', this.#element);
   }
 
   removeElement() {

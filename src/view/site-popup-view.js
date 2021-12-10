@@ -1,6 +1,6 @@
 import { getDuration } from '../utils/common.js';
 import { addPopupStatus } from '../utils/common.js';
-import { createElement } from "../render.js";
+import { createElement } from '../render.js';
 
 const createPopupTemplate = (filmCardData) => {
   const durationInHM = getDuration(filmCardData.totalDuration);
@@ -131,7 +131,7 @@ export default class SitePopupView {
       this.#element = createElement(this.template);
     }
 
-    return this.#element
+    return this.#element;
   }
 
   get template() {

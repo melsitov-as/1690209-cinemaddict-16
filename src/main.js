@@ -8,7 +8,7 @@ import SiteFilmCardView from './view/site-film-card-view.js';
 import SiteTopRatedFilmsView from './view/site-top-rated-view.js';
 import SiteMostCommentedFilmsView from './view/site-most-commented-view.js';
 import SitePopupView from './view/site-popup-view.js';
-import { renderTemplate, renderElement, RenderPosition } from './render.js';
+import { renderElement, RenderPosition } from './render.js';
 import { getFilmCardMockData } from './mock/film-card-mock.js';
 import { generateFilter } from './mock/filter.js';
 import SitePopupCommentsView from './view/site-popup-comments-view.js';
@@ -16,17 +16,17 @@ import SitePopupCommentsView from './view/site-popup-comments-view.js';
 const FILM_CARDS_COUNT = 42;
 const FILM_CARDS_COUNT_PER_STEP = 5;
 
-const body = document.querySelector('body')
+const body = document.querySelector('body');
 
 let filmCards = null;
 let filters = null;
-let renderedFilmCards = [];
+const renderedFilmCards = [];
 
 const renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
 
 const renderFilmItems = (container, count) => {
   for (let ii = 0; ii < Math.min(filmCards.length, count); ii++) {
-    const filmCard = new SiteFilmCardView(filmCards[ii])
+    const filmCard = new SiteFilmCardView(filmCards[ii]);
     renderBeforeEnd(container, filmCard.element);
     renderedFilmCards.push(filmCard);
   }
@@ -41,9 +41,9 @@ const initializeShowMoreClickHandler = (container, allFilmsContainer) => {
     filmCards
       .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
       .forEach((filmCard) => {
-        let filmCardMore = new SiteFilmCardView(filmCard)
-        renderBeforeEnd(allFilmsContainer, filmCardMore.element)
-        renderedFilmCards.push(filmCardMore)
+        const filmCardMore = new SiteFilmCardView(filmCard);
+        renderBeforeEnd(allFilmsContainer, filmCardMore.element);
+        renderedFilmCards.push(filmCardMore);
       });
 
     renderedFilmCardsCount += FILM_CARDS_COUNT_PER_STEP;
@@ -81,33 +81,30 @@ const renderFilms = (container) => {
   renderMostCommented(container);
 };
 
-const initializeShowPopupLink = (filmCardsData) => {
-  filmCardsData.forEach((item) => {
-    item.element.querySelector('.film-card__comments').addEventListener('click', () => {
-      renderPopup(item.filmCardData);
-      body.classList.add('hide-overflow');
-    })
-  })
-}
+const renderComments = (container, filmCardData) => {
+  filmCardData.comments.forEach((item) => {
+    renderBeforeEnd(container, new SitePopupCommentsView(item).element);
+  });
+};
 
 const initializePopupCloseButton = (filmDetailsData) => {
-  const popupCloseButton = document.querySelector('.film-details__close-btn')
+  const popupCloseButton = document.querySelector('.film-details__close-btn');
 
   popupCloseButton.addEventListener('click', () => {
-    body.removeChild(filmDetailsData)
-    body.classList.remove('hide-overflow')
-  })
-}
+    body.removeChild(filmDetailsData);
+    body.classList.remove('hide-overflow');
+  });
+};
 
 const renderPopup = (data) => {
-  const filmDetails = new SitePopupView(data).element
+  const filmDetails = new SitePopupView(data).element;
 
   renderBeforeEnd(
     document.querySelector('body'),
     filmDetails
   );
 
-  body.classList.add('hide-overflow')
+  body.classList.add('hide-overflow');
 
   renderComments(
     document.querySelector('.film-details__comments-list'),
@@ -117,22 +114,21 @@ const renderPopup = (data) => {
   initializePopupCloseButton(filmDetails);
 };
 
+const initializeShowPopupLink = (filmCardsData) => {
+  filmCardsData.forEach((item) => {
+    item.element.querySelector('.film-card__comments').addEventListener('click', () => {
+      renderPopup(item.filmCardData);
+      body.classList.add('hide-overflow');
+    });
+  });
+};
+
 const renderSite = (container) => {
   renderBeforeEnd(container, new SiteMenuView(filters).element);
   renderBeforeEnd(container, new SiteSortView().element);
   renderBeforeEnd(container, new SiteFilmsView().element);
   renderFilms(container.querySelector('.films'));
   initializeShowPopupLink(renderedFilmCards);
-};
-
-
-
-const renderComments = (container, filmCardData) => {
-  filmCardData.comments.forEach((item) => {
-    console.log(item)
-    renderBeforeEnd(container, new SitePopupCommentsView(item).element)
-    console.log(new SitePopupCommentsView(item).element)
-  })
 };
 
 filmCards = Array.from({length: FILM_CARDS_COUNT}, getFilmCardMockData);
@@ -144,5 +140,3 @@ renderBeforeEnd(
 );
 
 renderSite(document.querySelector('.main'));
-
-

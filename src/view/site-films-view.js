@@ -1,4 +1,4 @@
-import { createElement } from "../render.js";
+import { createElement } from '../render.js';
 
 const createSiteFilmsTemplate = () => '<section class="films"></section>';
 
