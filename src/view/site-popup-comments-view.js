@@ -1,7 +1,6 @@
 import { createElement } from "../render.js";
 
-const createPopupCommentTemplate = (commentData) => `
-  <li class="film-details__comment">
+const createPopupCommentTemplate = (commentData) => `<li class="film-details__comment">
     <span class="film-details__comment-emoji">
       <img src="./images/emoji/${commentData.emoji}" width="55" height="55" alt="emoji-smile">
     </span>

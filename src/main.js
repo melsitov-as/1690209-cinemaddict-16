@@ -81,22 +81,14 @@ const renderFilms = (container) => {
   renderMostCommented(container);
 };
 
-const renderSite = (container) => {
-  renderBeforeEnd(container, new SiteMenuView(filters).element);
-  renderBeforeEnd(container, new SiteSortView().element);
-  renderBeforeEnd(container, new SiteFilmsView().element);
-  renderFilms(container.querySelector('.films'));
-};
-
-
-
-const renderComments = (container, filmCardData) => {
-  filmCardData.comments.forEach((item) => {
-    console.log(item)
-    renderBeforeEnd(container, new SitePopupCommentsView(item).element)
-    console.log(new SitePopupCommentsView(item).element)
+const initializeShowPopupLink = (filmCardsData) => {
+  filmCardsData.forEach((item) => {
+    item.element.querySelector('.film-card__comments').addEventListener('click', () => {
+      renderPopup(item.filmCardData);
+      body.classList.add('hide-overflow');
+    })
   })
-};
+}
 
 const initializePopupCloseButton = (filmDetailsData) => {
   const popupCloseButton = document.querySelector('.film-details__close-btn')
@@ -125,14 +117,23 @@ const renderPopup = (data) => {
   initializePopupCloseButton(filmDetails);
 };
 
-// const initializeShowPopupLink = (filmCardsData) => {
-//   filmCardsData.forEach((item) => {
-//     item.element.querySelector('.film-card__comments').addEventListener('click', () => {
-//       renderPopup(item.filmCardData);
-//       body.classList.add('hide-overflow');
-//     })
-//   })
-// }
+const renderSite = (container) => {
+  renderBeforeEnd(container, new SiteMenuView(filters).element);
+  renderBeforeEnd(container, new SiteSortView().element);
+  renderBeforeEnd(container, new SiteFilmsView().element);
+  renderFilms(container.querySelector('.films'));
+  initializeShowPopupLink(renderedFilmCards);
+};
+
+
+
+const renderComments = (container, filmCardData) => {
+  filmCardData.comments.forEach((item) => {
+    console.log(item)
+    renderBeforeEnd(container, new SitePopupCommentsView(item).element)
+    console.log(new SitePopupCommentsView(item).element)
+  })
+};
 
 filmCards = Array.from({length: FILM_CARDS_COUNT}, getFilmCardMockData);
 filters = generateFilter(filmCards);
@@ -145,6 +146,3 @@ renderBeforeEnd(
 renderSite(document.querySelector('.main'));
 
 
-renderPopup(filmCards[0]);
-
-// initializeShowPopupLink(renderedFilmCards);
