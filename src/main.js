@@ -98,22 +98,55 @@ const renderComments = (container, filmCardData) => {
   });
 };
 
+const isEscKey = (evt)=>(evt.key === 'Escape' || evt.key === 'esc');
+
 const initializePopupCloseButton = (filmDetailsData) => {
   const popupCloseButton = document.querySelector('.film-details__close-btn');
+  if(popupCloseButton === null){
+    return;
+  }
+  if(filmDetailsData === null){
+    return;
+  }
 
-  popupCloseButton.addEventListener('click', () => {
+  let handleCloseClick = null;
+  let handleDocumentKeydown = null;
+
+  const closePopup = () => {
+    if (!document.body.contains(filmDetailsData)) {
+      return;
+    }
     body.removeChild(filmDetailsData);
     body.classList.remove('hide-overflow');
-  });
+  };
 
-  document.addEventListener('keydown', (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'esc') {
-      if (document.body.contains(filmDetailsData)) {
-        body.removeChild(filmDetailsData);
-        body.classList.remove('hide-overflow');
-      }
+  const removeHandlers = ()=>{
+    if(handleDocumentKeydown !== null){
+      document.removeEventListener('keydown', handleDocumentKeydown);
+      handleDocumentKeydown = null;
     }
-  });
+    if(handleCloseClick !== null){
+      popupCloseButton.removeEventListener('click',handleCloseClick);
+      handleCloseClick = null;
+    }
+  };
+
+  handleCloseClick = () =>{
+    closePopup();
+    removeHandlers();
+  };
+
+  handleDocumentKeydown = (evt)=>{
+    if(!isEscKey(evt)){
+      return;
+    }
+    closePopup();
+    removeHandlers();
+  };
+
+  popupCloseButton.addEventListener('click', handleCloseClick);
+
+  document.addEventListener('keydown', handleDocumentKeydown);
 };
 
 const renderPopup = (data) => {
