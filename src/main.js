@@ -75,10 +75,21 @@ const renderMostCommented = (container) => {
   renderFilmItems(container.querySelector('.films-list--most-commented').querySelector('.films-list__container'), 2);
 };
 
-const renderFilms = (container) => {
+const showNoFilmsMessage = (container) => {
   renderAllFilms(container);
-  renderTopRated(container);
-  renderMostCommented(container);
+  const filmsListTitle = container.querySelector('.films-list__title');
+  filmsListTitle.classList.remove('visually-hidden');
+  filmsListTitle.textContent = 'There are no movies in our database';
+};
+
+const renderFilms = (container) => {
+  if (FILM_CARDS_COUNT <= 0) {
+    showNoFilmsMessage(container);
+  } else {
+    renderAllFilms(container);
+    renderTopRated(container);
+    renderMostCommented(container);
+  }
 };
 
 const renderComments = (container, filmCardData) => {
@@ -93,6 +104,15 @@ const initializePopupCloseButton = (filmDetailsData) => {
   popupCloseButton.addEventListener('click', () => {
     body.removeChild(filmDetailsData);
     body.classList.remove('hide-overflow');
+  });
+
+  document.addEventListener('keydown', (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'esc') {
+      if (document.body.contains(filmDetailsData)) {
+        body.removeChild(filmDetailsData);
+        body.classList.remove('hide-overflow');
+      }
+    }
   });
 };
 
