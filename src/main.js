@@ -75,10 +75,21 @@ const renderMostCommented = (container) => {
   renderFilmItems(container.querySelector('.films-list--most-commented').querySelector('.films-list__container'), 2);
 };
 
-const renderFilms = (container) => {
+const showNoFilmsMessage = (container) => {
   renderAllFilms(container);
-  renderTopRated(container);
-  renderMostCommented(container);
+  const filmsListTitle = container.querySelector('.films-list__title');
+  filmsListTitle.classList.remove('visually-hidden');
+  filmsListTitle.textContent = 'There are no movies in our database';
+};
+
+const renderFilms = (container) => {
+  if (FILM_CARDS_COUNT <= 0) {
+    showNoFilmsMessage(container);
+  } else {
+    renderAllFilms(container);
+    renderTopRated(container);
+    renderMostCommented(container);
+  }
 };
 
 const renderComments = (container, filmCardData) => {
@@ -87,13 +98,55 @@ const renderComments = (container, filmCardData) => {
   });
 };
 
+const isEscKey = (evt)=>(evt.key === 'Escape' || evt.key === 'esc');
+
 const initializePopupCloseButton = (filmDetailsData) => {
   const popupCloseButton = document.querySelector('.film-details__close-btn');
+  if(popupCloseButton === null){
+    return;
+  }
+  if(filmDetailsData === null){
+    return;
+  }
 
-  popupCloseButton.addEventListener('click', () => {
+  let handleCloseClick = null;
+  let handleDocumentKeydown = null;
+
+  const closePopup = () => {
+    if (!document.body.contains(filmDetailsData)) {
+      return;
+    }
     body.removeChild(filmDetailsData);
     body.classList.remove('hide-overflow');
-  });
+  };
+
+  const removeHandlers = ()=>{
+    if(handleDocumentKeydown !== null){
+      document.removeEventListener('keydown', handleDocumentKeydown);
+      handleDocumentKeydown = null;
+    }
+    if(handleCloseClick !== null){
+      popupCloseButton.removeEventListener('click',handleCloseClick);
+      handleCloseClick = null;
+    }
+  };
+
+  handleCloseClick = () =>{
+    closePopup();
+    removeHandlers();
+  };
+
+  handleDocumentKeydown = (evt)=>{
+    if(!isEscKey(evt)){
+      return;
+    }
+    closePopup();
+    removeHandlers();
+  };
+
+  popupCloseButton.addEventListener('click', handleCloseClick);
+
+  document.addEventListener('keydown', handleDocumentKeydown);
 };
 
 const renderPopup = (data) => {
