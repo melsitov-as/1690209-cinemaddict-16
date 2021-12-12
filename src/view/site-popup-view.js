@@ -1,6 +1,6 @@
 import { getDuration } from '../utils/common.js';
 import { addPopupStatus } from '../utils/common.js';
-import { createElement } from '../render.js';
+import AbstractView from './abstract-view.js';
 
 const createPopupTemplate = (filmCardData) => {
   const durationInHM = getDuration(filmCardData.totalDuration);
@@ -117,28 +117,25 @@ const createPopupTemplate = (filmCardData) => {
 </section>`;
 };
 
-
-export default class SitePopupView {
-  #element = null;
+export default class SitePopupView extends AbstractView {
   #filmCardData = null;
 
   constructor(filmCardData) {
+    super();
     this.#filmCardData = filmCardData;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createPopupTemplate(this.#filmCardData);
   }
 
-  removeElement() {
-    this.#element = null;
+  setPopupCloseHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#clickHandler);
+  }
+
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
   }
 }

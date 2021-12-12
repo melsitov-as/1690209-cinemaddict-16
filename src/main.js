@@ -22,6 +22,8 @@ let filmCards = null;
 let filters = null;
 const renderedFilmCards = [];
 
+const showMoreButton = new SiteShowMoreView();
+
 const renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
 
 const renderFilmItems = (container, count) => {
@@ -35,9 +37,9 @@ const renderFilmItems = (container, count) => {
 const initializeShowMoreClickHandler = (container, allFilmsContainer) => {
   let renderedFilmCardsCount = FILM_CARDS_COUNT_PER_STEP;
 
-  const showMoreButton = container.querySelector('.films-list__show-more');
+  // const showMoreButton = container.querySelector('.films-list__show-more');
 
-  showMoreButton.addEventListener('click', () => {
+  showMoreButton.setShowMoreHandler(() => {
     filmCards
       .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
       .forEach((filmCard) => {
@@ -60,7 +62,7 @@ const renderAllFilms = (container) => {
   renderFilmItems(allFilmsContainer, FILM_CARDS_COUNT_PER_STEP);
 
   if (filmCards.length > FILM_CARDS_COUNT_PER_STEP) {
-    renderBeforeEnd(container, new SiteShowMoreView().element);
+    renderBeforeEnd(container, showMoreButton.element);
     initializeShowMoreClickHandler(container,allFilmsContainer);
   }
 };
@@ -169,7 +171,7 @@ const renderPopup = (data) => {
 
 const initializeShowPopupLink = (filmCardsData) => {
   filmCardsData.forEach((item) => {
-    item.element.querySelector('.film-card__comments').addEventListener('click', () => {
+    item.setShowPopupHandler(() => {
       renderPopup(item.filmCardData);
       body.classList.add('hide-overflow');
     });

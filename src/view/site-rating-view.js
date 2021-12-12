@@ -1,27 +1,13 @@
-import { createElement } from '../render.js';
+import AbstractView from './abstract-view.js';
 
 const createSiteRatingTemplate = () => `<section class="header__profile profile">
     <p class="profile__rating">Movie Buff</p>
     <img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
   </section>`;
 
-
-export default class SiteRatingView {
-  #element = null;
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
+export default class SiteRatingView extends AbstractView {
 
   get template() {
     return createSiteRatingTemplate();
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

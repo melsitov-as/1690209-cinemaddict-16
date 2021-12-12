@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from './abstract-view.js';
 
 const createPopupCommentTemplate = (commentData) => `<li class="film-details__comment">
     <span class="film-details__comment-emoji">
@@ -15,27 +15,15 @@ const createPopupCommentTemplate = (commentData) => `<li class="film-details__co
   </li>
 `;
 
-export default class SitePopupCommentsView {
-  #element = null;
+export default class SitePopupCommentsView extends AbstractView {
   #commentData = null;
 
   constructor(commentData) {
+    super();
     this.#commentData = commentData;
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  get template() {
+    get template() {
     return createPopupCommentTemplate(this.#commentData);
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
