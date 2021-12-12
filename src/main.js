@@ -8,7 +8,7 @@ import SiteFilmCardView from './view/site-film-card-view.js';
 import SiteTopRatedFilmsView from './view/site-top-rated-view.js';
 import SiteMostCommentedFilmsView from './view/site-most-commented-view.js';
 import SitePopupView from './view/site-popup-view.js';
-import { renderElement, RenderPosition } from './render.js';
+import { renderElement, RenderPosition, removeElement } from './render.js';
 import { getFilmCardMockData } from './mock/film-card-mock.js';
 import { generateFilter } from './mock/filter.js';
 import SitePopupCommentsView from './view/site-popup-comments-view.js';
@@ -100,59 +100,22 @@ const renderComments = (container, filmCardData) => {
   });
 };
 
-const isEscKey = (evt)=>(evt.key === 'Escape' || evt.key === 'esc');
-
 const initializePopupCloseButton = (filmDetailsData) => {
-  const popupCloseButton = document.querySelector('.film-details__close-btn');
-  if(popupCloseButton === null){
-    return;
-  }
   if(filmDetailsData === null){
     return;
   }
 
-  let handleCloseClick = null;
-  let handleDocumentKeydown = null;
-
   const closePopup = () => {
-    if (!document.body.contains(filmDetailsData)) {
-      return;
-    }
-    body.removeChild(filmDetailsData);
+    removeElement(filmDetailsData);
     body.classList.remove('hide-overflow');
   };
 
-  const removeHandlers = ()=>{
-    if(handleDocumentKeydown !== null){
-      document.removeEventListener('keydown', handleDocumentKeydown);
-      handleDocumentKeydown = null;
-    }
-    if(handleCloseClick !== null){
-      popupCloseButton.removeEventListener('click',handleCloseClick);
-      handleCloseClick = null;
-    }
-  };
+  filmDetailsData.setPopupCloseHandler(closePopup);
 
-  handleCloseClick = () =>{
-    closePopup();
-    removeHandlers();
-  };
-
-  handleDocumentKeydown = (evt)=>{
-    if(!isEscKey(evt)){
-      return;
-    }
-    closePopup();
-    removeHandlers();
-  };
-
-  popupCloseButton.addEventListener('click', handleCloseClick);
-
-  document.addEventListener('keydown', handleDocumentKeydown);
 };
 
 const renderPopup = (data) => {
-  const filmDetails = new SitePopupView(data).element;
+  const filmDetails = new SitePopupView(data, document);
 
   renderBeforeEnd(
     document.querySelector('body'),

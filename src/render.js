@@ -1,3 +1,5 @@
+import AbstractView from './view/abstract-view';
+
 export const RenderPosition = {
   BEFOREBEGIN: 'beforebegin',
   AFTERBEGIN: 'afterbegin',
@@ -9,7 +11,7 @@ export const renderTemplate = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
 
-export const renderElement = (container, element, place) => {
+const renderHTMLElement = (container, element, place) => {
   switch (place) {
     case RenderPosition.BEFOREBEGIN:
       container.before(element);
@@ -26,9 +28,34 @@ export const renderElement = (container, element, place) => {
   }
 };
 
-export const createElement = (template) => {
-  const newElement = document.createElement('div'); // 1
-  newElement.innerHTML = template; // 2
+const ensureElement = (elementOrAbstract) => elementOrAbstract instanceof AbstractView?elementOrAbstract.element : elementOrAbstract;
 
-  return newElement.firstChild; // 3
+export const renderElement = (container, elementOrAbstract, place) => renderHTMLElement(container, ensureElement(elementOrAbstract), place);
+
+const removeHTMLElement = (element) => {
+  if (!document.contains(element)) {
+    return;
+  }
+  element.remove();
+};
+
+const checkIsElementCreated = (elementOrAbstract) => {
+  if (elementOrAbstract.isElementCreated) {
+    removeHTMLElement(elementOrAbstract.element);
+  }
+};
+
+export const removeElement = (elementOrAbstract) => {
+  if (elementOrAbstract instanceof AbstractView) {
+    checkIsElementCreated(elementOrAbstract);
+    return;
+  }
+  removeHTMLElement(elementOrAbstract);
+};
+
+export const createElement = (template) => {
+  const newElement = document.createElement('div');
+  newElement.innerHTML = template;
+
+  return newElement.firstChild;
 };

@@ -45,6 +45,8 @@ export const addPopupStatus = (filmCardData) => ( {
   isInFavoritesActive: getDetailsSelector(filmCardData.isInFavorites),
 });
 
+export const isEscKey = (evt)=>(evt.key === 'Escape' || evt.key === 'esc');
+
 
 // export const addStatus = (filmCardData) => {
 //   const status = {

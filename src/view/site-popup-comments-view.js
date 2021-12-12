@@ -23,7 +23,7 @@ export default class SitePopupCommentsView extends AbstractView {
     this.#commentData = commentData;
   }
 
-    get template() {
+  get template() {
     return createPopupCommentTemplate(this.#commentData);
   }
 }

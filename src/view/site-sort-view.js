@@ -7,7 +7,7 @@ export const createSiteSortTemplate = () => `<ul class="sort">
   </ul>`;
 
 export default class SiteSortView extends AbstractView {
-    get template() {
+  get template() {
     return createSiteSortTemplate();
   }
 }

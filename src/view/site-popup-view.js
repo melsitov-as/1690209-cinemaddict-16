@@ -1,4 +1,4 @@
-import { getDuration } from '../utils/common.js';
+import { getDuration, isEscKey } from '../utils/common.js';
 import { addPopupStatus } from '../utils/common.js';
 import AbstractView from './abstract-view.js';
 
@@ -119,23 +119,48 @@ const createPopupTemplate = (filmCardData) => {
 
 export default class SitePopupView extends AbstractView {
   #filmCardData = null;
+  #popupCloseButton = null;
+  #document = null;
 
-  constructor(filmCardData) {
+  constructor(filmCardData, document) {
     super();
     this.#filmCardData = filmCardData;
+    this.#document = document;
   }
 
   get template() {
     return createPopupTemplate(this.#filmCardData);
   }
 
-  setPopupCloseHandler = (callback) => {
-    this._callback.click = callback;
-    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#clickHandler);
+  setPopupCloseHandler = (closePopup) => {
+    this._callback.closePopup = closePopup;
+    this.#popupCloseButton = this.element.querySelector('.film-details__close-btn');
+    this.#popupCloseButton.addEventListener('click', this.#handleCloseButtonClick);
+    this.#document.addEventListener('keydown', this.#handleDocumentKeydown);
   }
 
-  #clickHandler = (evt) => {
+  #removeHandlers = () => {
+    if(this.#handleDocumentKeydown !== null){
+      document.removeEventListener('keydown', this.#handleDocumentKeydown);
+      this.#handleDocumentKeydown = null;
+    }
+    if(this.#handleCloseButtonClick !== null){
+      this.#popupCloseButton.removeEventListener('click',this.#handleCloseButtonClick);
+      this.#handleCloseButtonClick = null;
+    }
+  };
+
+  #handleCloseButtonClick = (evt) => {
     evt.preventDefault();
-    this._callback.click();
+    this._callback.closePopup();
+    this.#removeHandlers();
   }
+
+  #handleDocumentKeydown = (evt)=>{
+    if(!isEscKey(evt)){
+      return;
+    }
+    this._callback.closePopup();
+    this.#removeHandlers();
+  };
 }

@@ -1,4 +1,3 @@
-import { createElement } from '../render.js';
 import AbstractView from './abstract-view.js';
 
 const createSiteMenuTemplate = (filters) => `<nav class="main-navigation">
@@ -20,7 +19,7 @@ export default class SiteMenuView extends AbstractView {
     this.#filters = filters;
   }
 
-    get template() {
+  get template() {
     return createSiteMenuTemplate(this.#filters);
   }
 }
