@@ -8,7 +8,7 @@ import SiteFilmCardView from './view/site-film-card-view.js';
 import SiteTopRatedFilmsView from './view/site-top-rated-view.js';
 import SiteMostCommentedFilmsView from './view/site-most-commented-view.js';
 import SitePopupView from './view/site-popup-view.js';
-import { renderElement, RenderPosition } from './render.js';
+import { renderElement, RenderPosition, removeElement } from './render.js';
 import { getFilmCardMockData } from './mock/film-card-mock.js';
 import { generateFilter } from './mock/filter.js';
 import SitePopupCommentsView from './view/site-popup-comments-view.js';
@@ -21,6 +21,8 @@ const body = document.querySelector('body');
 let filmCards = null;
 let filters = null;
 const renderedFilmCards = [];
+
+const showMoreButton = new SiteShowMoreView();
 
 const renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
 
@@ -35,9 +37,9 @@ const renderFilmItems = (container, count) => {
 const initializeShowMoreClickHandler = (container, allFilmsContainer) => {
   let renderedFilmCardsCount = FILM_CARDS_COUNT_PER_STEP;
 
-  const showMoreButton = container.querySelector('.films-list__show-more');
+  // const showMoreButton = container.querySelector('.films-list__show-more');
 
-  showMoreButton.addEventListener('click', () => {
+  showMoreButton.setShowMoreHandler(() => {
     filmCards
       .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
       .forEach((filmCard) => {
@@ -60,7 +62,7 @@ const renderAllFilms = (container) => {
   renderFilmItems(allFilmsContainer, FILM_CARDS_COUNT_PER_STEP);
 
   if (filmCards.length > FILM_CARDS_COUNT_PER_STEP) {
-    renderBeforeEnd(container, new SiteShowMoreView().element);
+    renderBeforeEnd(container, showMoreButton.element);
     initializeShowMoreClickHandler(container,allFilmsContainer);
   }
 };
@@ -98,59 +100,22 @@ const renderComments = (container, filmCardData) => {
   });
 };
 
-const isEscKey = (evt)=>(evt.key === 'Escape' || evt.key === 'esc');
-
 const initializePopupCloseButton = (filmDetailsData) => {
-  const popupCloseButton = document.querySelector('.film-details__close-btn');
-  if(popupCloseButton === null){
-    return;
-  }
   if(filmDetailsData === null){
     return;
   }
 
-  let handleCloseClick = null;
-  let handleDocumentKeydown = null;
-
   const closePopup = () => {
-    if (!document.body.contains(filmDetailsData)) {
-      return;
-    }
-    body.removeChild(filmDetailsData);
+    removeElement(filmDetailsData);
     body.classList.remove('hide-overflow');
   };
 
-  const removeHandlers = ()=>{
-    if(handleDocumentKeydown !== null){
-      document.removeEventListener('keydown', handleDocumentKeydown);
-      handleDocumentKeydown = null;
-    }
-    if(handleCloseClick !== null){
-      popupCloseButton.removeEventListener('click',handleCloseClick);
-      handleCloseClick = null;
-    }
-  };
+  filmDetailsData.setPopupCloseHandler(closePopup);
 
-  handleCloseClick = () =>{
-    closePopup();
-    removeHandlers();
-  };
-
-  handleDocumentKeydown = (evt)=>{
-    if(!isEscKey(evt)){
-      return;
-    }
-    closePopup();
-    removeHandlers();
-  };
-
-  popupCloseButton.addEventListener('click', handleCloseClick);
-
-  document.addEventListener('keydown', handleDocumentKeydown);
 };
 
 const renderPopup = (data) => {
-  const filmDetails = new SitePopupView(data).element;
+  const filmDetails = new SitePopupView(data, document);
 
   renderBeforeEnd(
     document.querySelector('body'),
@@ -169,7 +134,7 @@ const renderPopup = (data) => {
 
 const initializeShowPopupLink = (filmCardsData) => {
   filmCardsData.forEach((item) => {
-    item.element.querySelector('.film-card__comments').addEventListener('click', () => {
+    item.setShowPopupHandler(() => {
       renderPopup(item.filmCardData);
       body.classList.add('hide-overflow');
     });

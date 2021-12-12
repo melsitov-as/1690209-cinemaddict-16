@@ -1,6 +1,6 @@
 import { getDuration } from '../utils/common.js';
 import { addStatus } from '../utils/common.js';
-import { createElement } from '../render.js';
+import AbstractView from './abstract-view.js';
 
 export const createSiteFilmCardTemplate = (filmCardData) => {
   const durationInHM = getDuration(filmCardData.totalDuration);
@@ -26,33 +26,29 @@ export const createSiteFilmCardTemplate = (filmCardData) => {
 </article>`;
 };
 
-
-export default class SiteFilmCardView {
-  #element = null;
+export default class SiteFilmCardView extends AbstractView {
   #filmCardData = null;
 
   constructor(filmCardData) {
+    super();
     this.#filmCardData = filmCardData;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createSiteFilmCardTemplate(this.#filmCardData);
   }
 
-
   get filmCardData() {
     return this.#filmCardData;
   }
 
-  removeElement() {
-    this.#element = null;
+  setShowPopupHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.film-card__comments').addEventListener('click', this.#clickHandler);
+  }
+
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
   }
 }

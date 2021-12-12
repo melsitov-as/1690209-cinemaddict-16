@@ -1,6 +1,6 @@
-import { getDuration } from '../utils/common.js';
+import { getDuration, isEscKey } from '../utils/common.js';
 import { addPopupStatus } from '../utils/common.js';
-import { createElement } from '../render.js';
+import AbstractView from './abstract-view.js';
 
 const createPopupTemplate = (filmCardData) => {
   const durationInHM = getDuration(filmCardData.totalDuration);
@@ -117,28 +117,50 @@ const createPopupTemplate = (filmCardData) => {
 </section>`;
 };
 
-
-export default class SitePopupView {
-  #element = null;
+export default class SitePopupView extends AbstractView {
   #filmCardData = null;
+  #popupCloseButton = null;
+  #document = null;
 
-  constructor(filmCardData) {
+  constructor(filmCardData, document) {
+    super();
     this.#filmCardData = filmCardData;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
+    this.#document = document;
   }
 
   get template() {
     return createPopupTemplate(this.#filmCardData);
   }
 
-  removeElement() {
-    this.#element = null;
+  setPopupCloseHandler = (closePopup) => {
+    this._callback.closePopup = closePopup;
+    this.#popupCloseButton = this.element.querySelector('.film-details__close-btn');
+    this.#popupCloseButton.addEventListener('click', this.#handleCloseButtonClick);
+    this.#document.addEventListener('keydown', this.#handleDocumentKeydown);
   }
+
+  #removeHandlers = () => {
+    if(this.#handleDocumentKeydown !== null){
+      document.removeEventListener('keydown', this.#handleDocumentKeydown);
+      this.#handleDocumentKeydown = null;
+    }
+    if(this.#handleCloseButtonClick !== null){
+      this.#popupCloseButton.removeEventListener('click',this.#handleCloseButtonClick);
+      this.#handleCloseButtonClick = null;
+    }
+  };
+
+  #handleCloseButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.closePopup();
+    this.#removeHandlers();
+  }
+
+  #handleDocumentKeydown = (evt)=>{
+    if(!isEscKey(evt)){
+      return;
+    }
+    this._callback.closePopup();
+    this.#removeHandlers();
+  };
 }
