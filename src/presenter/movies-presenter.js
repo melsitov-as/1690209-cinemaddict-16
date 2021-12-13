@@ -4,19 +4,17 @@ import SiteSortView from '../view/site-sort-view.js';
 import SiteFilmsView from '../view/site-films-view.js';
 import SiteShowMoreView from '../view/site-show-more-view.js';
 import SiteAllFilmsView from '../view/site-all-films-list-view.js';
-import SiteFilmCardView from '../view/site-film-card-view.js';
 import SiteTopRatedFilmsView from '../view/site-top-rated-view.js';
 import SiteMostCommentedFilmsView from '../view/site-most-commented-view.js';
-import SitePopupView from '../view/site-popup-view.js';
 import { renderElement, RenderPosition, removeElement } from '../render.js';
 import { getFilmCardMockData } from '../mock/film-card-mock.js';
 import { generateFilter } from '../mock/filter.js';
-import SitePopupCommentsView from '../view/site-popup-comments-view.js';
+import MoviePresenter from './movie-presenter.js';
 
 const FILM_CARDS_COUNT = 42;
 const FILM_CARDS_COUNT_PER_STEP = 5;
 
-const body = document.querySelector('body');
+// const body = document.querySelector('body');
 
 export default class MoviesBoardPresenter {
   #renderedFilmCards = [];
@@ -37,15 +35,32 @@ export default class MoviesBoardPresenter {
 
   init = () => {
     this.#renderSite(this._mainContainer);
+    // const movie = new MoviePresenter(this._filmCards[0]);
+    // console.log(movie.movie.element);
+    console.log(this._filmPresentersRegular);
+    console.log(this._filmPresentersTopRated);
+    console.log(this._filmPresentersMostCommented);
+  }
+
+  #renderFilm = (film, filmPresenters) => {
+    const filmCard = new MoviePresenter(film);
+    filmCard.init();
+    console.log(filmCard.movie.filmCardData.id);
+
+    filmPresenters.set(filmCard.movie.filmCardData.id, filmCard);
+    return filmCard.movie.element;
   }
 
   #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
 
-  #renderFilmItems = (container, count) => {
+  #renderFilmItems = (container, count, filmPresenters) => {
     for (let ii = 0; ii < Math.min(this._filmCards.length, count); ii++) {
-      const filmCard = new SiteFilmCardView(this._filmCards[ii]);
-      this.#renderBeforeEnd(container, filmCard.element);
-      this.#renderedFilmCards.push(filmCard);
+      // const filmCard = new MoviePresenter(this._filmCards[ii]);
+      // this.#renderBeforeEnd(container, filmCard.movie.element);
+      const filmCard = this.#renderFilm(this._filmCards[ii], filmPresenters);
+      this.#renderBeforeEnd(container, filmCard);
+
+      // filmPresenters.set(film.id, filmPresenter);
     }
   };
 
@@ -55,9 +70,8 @@ export default class MoviesBoardPresenter {
       this._filmCards
         .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
         .forEach((filmCard) => {
-          const filmCardMore = new SiteFilmCardView(filmCard);
-          this.#renderBeforeEnd(allFilmsContainer, filmCardMore.element);
-          this.#renderedFilmCards.push(filmCardMore);
+          const filmCardMore = this.#renderFilm(filmCard, this._filmPresentersRegular);
+          this.#renderBeforeEnd(allFilmsContainer, filmCardMore);
         });
       renderedFilmCardsCount += FILM_CARDS_COUNT_PER_STEP;
       if (renderedFilmCardsCount >= this._filmCards.length) {
@@ -69,21 +83,21 @@ export default class MoviesBoardPresenter {
   #renderAllFilms = (container) => {
     this.#renderBeforeEnd(container, new SiteAllFilmsView().element);
     const allFilmsContainer = container.querySelector('.films-list__container');
-    this.#renderFilmItems(allFilmsContainer, FILM_CARDS_COUNT_PER_STEP);
+    this.#renderFilmItems(allFilmsContainer, FILM_CARDS_COUNT_PER_STEP, this._filmPresentersRegular);
     if (this._filmCards.length > FILM_CARDS_COUNT_PER_STEP) {
       this.#renderBeforeEnd(container, this.#showMoreButton.element);
-      this.#initializeShowMoreClickHandler(container,allFilmsContainer);
+      this.#initializeShowMoreClickHandler(allFilmsContainer);
     }
   };
 
   #renderTopRated = (container) => {
     this.#renderBeforeEnd(container, new SiteTopRatedFilmsView().element);
-    this.#renderFilmItems(container.querySelector('.films-list--top-rated').querySelector('.films-list__container'), 2);
+    this.#renderFilmItems(container.querySelector('.films-list--top-rated').querySelector('.films-list__container'), 2, this._filmPresentersTopRated);
   };
 
   #renderMostCommented = (container) => {
     this.#renderBeforeEnd(container, new SiteMostCommentedFilmsView().element);
-    this.#renderFilmItems(container.querySelector('.films-list--most-commented').querySelector('.films-list__container'), 2);
+    this.#renderFilmItems(container.querySelector('.films-list--most-commented').querySelector('.films-list__container'), 2, this._filmPresentersMostCommented);
   };
 
   #showNoFilmsMessage = (container) => {
@@ -103,46 +117,6 @@ export default class MoviesBoardPresenter {
     }
   };
 
-  #renderComments = (container, filmCardData) => {
-    filmCardData.comments.forEach((item) => {
-      this.#renderBeforeEnd(container, new SitePopupCommentsView(item).element);
-    });
-  };
-
-  #initializePopupCloseButton = (filmDetailsData) => {
-    if(filmDetailsData === null){
-      return;
-    }
-    const closePopup = () => {
-      removeElement(filmDetailsData);
-      body.classList.remove('hide-overflow');
-    };
-    filmDetailsData.setPopupCloseHandler(closePopup);
-  };
-
-  #renderPopup = (data) => {
-    const filmDetails = new SitePopupView(data, document);
-    this.#renderBeforeEnd(
-      document.querySelector('body'),
-      filmDetails
-    );
-    body.classList.add('hide-overflow');
-    this.#renderComments(
-      document.querySelector('.film-details__comments-list'),
-      data
-    );
-    this.#initializePopupCloseButton(filmDetails);
-  };
-
-  #initializeShowPopupLink = (filmCardsData) => {
-    filmCardsData.forEach((item) => {
-      item.setShowPopupHandler(() => {
-        this.#renderPopup(item.filmCardData);
-        body.classList.add('hide-overflow');
-      });
-    });
-  };
-
   #renderSite = (container) => {
     this.#renderBeforeEnd(
       document.querySelector('header'),
@@ -152,6 +126,6 @@ export default class MoviesBoardPresenter {
     this.#renderBeforeEnd(container, new SiteSortView().element);
     this.#renderBeforeEnd(container, new SiteFilmsView().element);
     this.#renderFilms(container.querySelector('.films'));
-    this.#initializeShowPopupLink(this.#renderedFilmCards);
+    // this.#initializeShowPopupLink(this.#renderedFilmCards);
   };
 }
