@@ -80,7 +80,6 @@ export default class MoviePresenter {
   };
 
   #renderPopup = (data) => {
-
     this.#renderBeforeEnd(
       this.#filmPopupContainer,
       this.#filmPopupView);
@@ -91,13 +90,17 @@ export default class MoviePresenter {
     );
   };
 
+  #removeDoublePopup = () => {
+    const openedPopups = this.#filmPopupContainer.querySelectorAll('.film-details');
+    if (openedPopups.length > 1) {
+      removeElement(openedPopups[0]);
+    }
+  }
+
   #initializeShowPopupLink = (data) => {
     data.setShowPopupHandler(() => {
-      if (this.#filmPopupContainer.contains(this.#filmPopupView.element)) {
-        console.log('Содержит');
-      }
       this.#renderPopup(data.filmCardData);
-      this.#filmPopupContainer.classList.add('hide-overflow');
+      this.#removeDoublePopup();
     });
   };
 
