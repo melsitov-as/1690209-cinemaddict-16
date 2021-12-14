@@ -12,7 +12,7 @@ import { generateFilter } from '../mock/filter.js';
 import MoviePresenter from './movie-presenter.js';
 import { updateItem } from '../utils/common.js';
 
-const FILM_CARDS_COUNT = 2;
+const FILM_CARDS_COUNT = 48;
 const FILM_CARDS_COUNT_PER_STEP = 5;
 
 // const body = document.querySelector('body');
@@ -39,9 +39,6 @@ export default class MoviesBoardPresenter {
 
   init = () => {
     this.#renderSite(this._mainContainer);
-
-    // const movie = new MoviePresenter(this._filmCards[0]);
-    // console.log(movie.movie.element);
   }
 
   #renderFilm = (film, container, filmPresenters) => {

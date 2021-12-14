@@ -8,7 +8,6 @@ export default class MoviePresenter {
   #filmView = null;
   #filmPopupView = null;
   #prevFilmPopupView = null;
-  #openedPopupView = null;
   #filmsListContainer = null;
   #filmPopupContainer = null;
 
