@@ -44,9 +44,7 @@ export default class MoviePresenter {
     }
 
     if (prevFilmView) {
-      if (this.#filmsListContainer.contains(prevFilmView.element)) {
-        replaceElement(this.#filmView, prevFilmView);
-      }
+      this.#replaceFilmCard(prevFilmView);
     }
 
     this.#filmPopupView.setWatchlistHandler(this.#handleWatchlistClick);
@@ -55,14 +53,25 @@ export default class MoviePresenter {
 
 
     if (this.#prevFilmPopupView) {
-      if (this.#filmPopupContainer.contains(this.#prevFilmPopupView.element)) {
-        replaceElement(this.#filmPopupView, this.#prevFilmPopupView);
-      }
+      this.#replacePopup(this.#prevFilmPopupView);
     }
   }
 
+
   get movie() {
     return this.#filmView;
+  }
+
+  #replaceFilmCard = (prevFilmViewData) => {
+    if (this.#filmsListContainer.contains(prevFilmViewData.element)) {
+      replaceElement(this.#filmView, prevFilmViewData);
+    }
+  };
+
+  #replacePopup = (prevFilmPopupViewData) => {
+    if (this.#filmPopupContainer.contains(prevFilmPopupViewData.element)) {
+      replaceElement(this.#filmPopupView, prevFilmPopupViewData);
+    }
   }
 
   #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
