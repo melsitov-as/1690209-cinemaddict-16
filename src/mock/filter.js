@@ -4,7 +4,7 @@ const initCounter = {
   inFavorites: 0
 };
 
-const boolToInt = (flag)=>flag?0:1;
+const boolToInt = (flag)=>flag?1:0;
 
 const counterReducer = (accumulator, current) =>{
   accumulator.inWatchlist += boolToInt(current.isInWatchlist);

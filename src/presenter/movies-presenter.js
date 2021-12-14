@@ -10,16 +10,17 @@ import { renderElement, RenderPosition, removeElement } from '../render.js';
 import { getFilmCardMockData } from '../mock/film-card-mock.js';
 import { generateFilter } from '../mock/filter.js';
 import MoviePresenter from './movie-presenter.js';
+import { updateItem } from '../utils/common.js';
 
-const FILM_CARDS_COUNT = 42;
+const FILM_CARDS_COUNT = 2;
 const FILM_CARDS_COUNT_PER_STEP = 5;
 
 // const body = document.querySelector('body');
 
 export default class MoviesBoardPresenter {
-  #renderedFilmCards = [];
 
   #showMoreButton = new SiteShowMoreView()
+  #siteMenu = null;
 
   constructor(main) {
     this._mainContainer = main;
@@ -27,25 +28,25 @@ export default class MoviesBoardPresenter {
     this._filmCards = Array.from({length: FILM_CARDS_COUNT}, getFilmCardMockData);
     this._filters = generateFilter(this._filmCards);
 
+    this.#siteMenu = new SiteMenuView(this._filters).element;
+
     this._filmPresentersRegular = new Map();
     this._filmPresentersTopRated = new Map();
     this._filmPresentersMostCommented = new Map();
 
+    this._filmCardsDefault = this._filmCards.slice();
   }
 
   init = () => {
     this.#renderSite(this._mainContainer);
+
     // const movie = new MoviePresenter(this._filmCards[0]);
     // console.log(movie.movie.element);
-    console.log(this._filmPresentersRegular);
-    console.log(this._filmPresentersTopRated);
-    console.log(this._filmPresentersMostCommented);
   }
 
-  #renderFilm = (film, filmPresenters) => {
-    const filmCard = new MoviePresenter(film);
-    filmCard.init();
-    console.log(filmCard.movie.filmCardData.id);
+  #renderFilm = (film, container, filmPresenters) => {
+    const filmCard = new MoviePresenter(container, this.#handleFilmChange);
+    filmCard.init(film);
 
     filmPresenters.set(filmCard.movie.filmCardData.id, filmCard);
     return filmCard.movie.element;
@@ -53,14 +54,11 @@ export default class MoviesBoardPresenter {
 
   #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
 
+  #renderAfterBegin = (container, element) => renderElement(container, element, RenderPosition.AFTERBEGIN)
+
   #renderFilmItems = (container, count, filmPresenters) => {
     for (let ii = 0; ii < Math.min(this._filmCards.length, count); ii++) {
-      // const filmCard = new MoviePresenter(this._filmCards[ii]);
-      // this.#renderBeforeEnd(container, filmCard.movie.element);
-      const filmCard = this.#renderFilm(this._filmCards[ii], filmPresenters);
-      this.#renderBeforeEnd(container, filmCard);
-
-      // filmPresenters.set(film.id, filmPresenter);
+      this.#renderFilm(this._filmCards[ii], container, filmPresenters);
     }
   };
 
@@ -70,15 +68,14 @@ export default class MoviesBoardPresenter {
       this._filmCards
         .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
         .forEach((filmCard) => {
-          const filmCardMore = this.#renderFilm(filmCard, this._filmPresentersRegular);
-          this.#renderBeforeEnd(allFilmsContainer, filmCardMore);
+          this.#renderFilm(filmCard, allFilmsContainer, this._filmPresentersRegular);
         });
       renderedFilmCardsCount += FILM_CARDS_COUNT_PER_STEP;
       if (renderedFilmCardsCount >= this._filmCards.length) {
         this.#showMoreButton.remove();
       }
     });
-  };
+  }
 
   #renderAllFilms = (container) => {
     this.#renderBeforeEnd(container, new SiteAllFilmsView().element);
@@ -122,10 +119,38 @@ export default class MoviesBoardPresenter {
       document.querySelector('header'),
       new SiteRatingView().element
     );
-    this.#renderBeforeEnd(container, new SiteMenuView(this._filters).element);
+    this.#renderBeforeEnd(container, this.#siteMenu);
     this.#renderBeforeEnd(container, new SiteSortView().element);
     this.#renderBeforeEnd(container, new SiteFilmsView().element);
     this.#renderFilms(container.querySelector('.films'));
     // this.#initializeShowPopupLink(this.#renderedFilmCards);
   };
+
+   // Переключатель карточки фильма
+   #handleFilmChange = (updatedFilm) => {
+     this._filmCards = updateItem(this._filmCards, updatedFilm);
+     this._filmCardsDefault = updateItem(this._filmCardsDefault, updatedFilm);
+
+     if ( this._filmPresentersRegular.get(updatedFilm.id) !== undefined) {
+       this._filmPresentersRegular.get(updatedFilm.id).init(updatedFilm);
+     }
+
+     if ( this._filmPresentersTopRated.get(updatedFilm.id) !== undefined) {
+       this._filmPresentersTopRated.get(updatedFilm.id).init(updatedFilm);
+     }
+
+     if ( this._filmPresentersMostCommented.get(updatedFilm.id) !== undefined) {
+       this._filmPresentersMostCommented.get(updatedFilm.id).init(updatedFilm);
+     }
+
+     this.#updateSiteMenu();
+   }
+
+   #updateSiteMenu = () => {
+     //  this._mainContainer.removeChild(this.#siteMenu);
+     removeElement(this.#siteMenu);
+     this._filters = generateFilter(this._filmCards);
+     this.#siteMenu = new SiteMenuView(this._filters);
+     this.#renderAfterBegin(this._mainContainer, this.#siteMenu.element);
+   }
 }

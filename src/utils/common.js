@@ -47,45 +47,16 @@ export const addPopupStatus = (filmCardData) => ( {
 
 export const isEscKey = (evt)=>(evt.key === 'Escape' || evt.key === 'esc');
 
+export const updateItem = (items, update) => {
+  const index = items.findIndex((item) => item.id === update.id);
 
-// export const addStatus = (filmCardData) => {
-//   const status = {
-//     isInWatchlistActive: '',
-//     isWatchedActive: '',
-//     isInFavoritesActive: '',
-//   };
-//   if (filmCardData.isInWatchlist === true) {
-//     status.isInWatchlistActive = 'film-card__controls-item--active';
-//   }
+  if (index === -1) {
+    return items;
+  }
 
-//   if (filmCardData.isWatched === true) {
-//     status.isWatchedActive = 'film-card__controls-item--active';
-//   }
-
-//   if (filmCardData.isInFavorites === true) {
-//     status.isInFavoritesActive = 'film-card__controls-item--active';
-//   }
-
-//   return status;
-// };
-
-// export const addPopupStatus = (filmCardData) => {
-//   const status = {
-//     isInWatchlistActive: '',
-//     isWatchedActive: '',
-//     isInFavoritesActive: '',
-//   };
-//   if (filmCardData.isInWatchlist === true) {
-//     status.isInWatchlistActive = 'film-details__control-button--active';
-//   }
-
-//   if (filmCardData.isWatched === true) {
-//     status.isWatchedActive = 'film-details__control-button--active';
-//   }
-
-//   if (filmCardData.isInFavorites === true) {
-//     status.isInFavoritesActive = 'film-details__control-button--active';
-//   }
-
-//   return status;
-// };
+  return [
+    ...items.slice(0, index),
+    update,
+    ...items.slice(index + 1),
+  ];
+};
