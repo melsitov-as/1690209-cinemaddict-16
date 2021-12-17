@@ -139,21 +139,21 @@ export default class SitePopupView extends AbstractView {
     this.#document.addEventListener('keydown', this.#handleDocumentKeydown);
   }
 
-  #removeHandlers = () => {
-    if(this.#handleDocumentKeydown !== null){
-      document.removeEventListener('keydown', this.#handleDocumentKeydown);
-      this.#handleDocumentKeydown = null;
-    }
-    if(this.#handleCloseButtonClick !== null){
-      this.#popupCloseButton.removeEventListener('click',this.#handleCloseButtonClick);
-      this.#handleCloseButtonClick = null;
-    }
-  };
+  // #removeHandlers = () => {
+  //   if(this.#handleDocumentKeydown !== null){
+  //     document.removeEventListener('keydown', this.#handleDocumentKeydown);
+  //     this.#handleDocumentKeydown = null;
+  //   }
+  //   if(this.#handleCloseButtonClick !== null){
+  //     this.#popupCloseButton.removeEventListener('click',this.#handleCloseButtonClick);
+  //     this.#handleCloseButtonClick = null;
+  //   }
+  // };
 
   #handleCloseButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.closePopup();
-    this.#removeHandlers();
+    // this.#removeHandlers();
   }
 
   #handleDocumentKeydown = (evt)=>{
@@ -161,6 +161,33 @@ export default class SitePopupView extends AbstractView {
       return;
     }
     this._callback.closePopup();
-    this.#removeHandlers();
+    // this.#removeHandlers();
   };
+
+  #isInWatchlistHandler = () => {
+    this._callbackWatchlist.click();
+  }
+
+  #isInFavoritesHandler = () => {
+    this._callbackInFavorites.click();
+  }
+
+  #isWatchedHandler = () => {
+    this._callbackWatched.click();
+  }
+
+  setWatchlistHandler = (callback) => {
+    this._callbackWatchlist.click = callback;
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#isInWatchlistHandler);
+  }
+
+  setWatchedHandler = (callback) => {
+    this._callbackWatched.click = callback;
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#isWatchedHandler);
+  }
+
+  setFavoritesHandler = (callback) => {
+    this._callbackInFavorites.click = callback;
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#isInFavoritesHandler);
+  }
 }

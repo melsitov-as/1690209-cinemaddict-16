@@ -51,4 +51,31 @@ export default class SiteFilmCardView extends AbstractView {
     evt.preventDefault();
     this._callback.click();
   }
+
+  #isInWatchlistHandler = () => {
+    this._callbackWatchlist.click();
+  }
+
+  #isWatchedHandler = () => {
+    this._callbackWatched.click();
+  }
+
+  #isInFavoritesHandler = () => {
+    this._callbackInFavorites.click();
+  }
+
+  setWatchedHandler(callback) {
+    this._callbackWatched.click = callback;
+    this.element.querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this.#isWatchedHandler);
+  }
+
+  setWatchlistHandler(callback) {
+    this._callbackWatchlist.click = callback;
+    this.element.querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this.#isInWatchlistHandler);
+  }
+
+  setFavoritesHandler(callback) {
+    this._callbackInFavorites.click = callback;
+    this.element.querySelector('.film-card__controls-item--favorite').addEventListener('click', this.#isInFavoritesHandler);
+  }
 }
