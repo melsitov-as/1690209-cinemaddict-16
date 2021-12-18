@@ -62,6 +62,11 @@ export default class MoviePresenter {
     return this.#filmView;
   }
 
+  destroy() {
+    removeElement(this.#filmView);
+    removeElement(this.#filmPopupView);
+  }
+
   #replaceFilmCard = (prevFilmViewData) => {
     if (this.#filmsListContainer.contains(prevFilmViewData.element)) {
       replaceElement(this.#filmView, prevFilmViewData);

@@ -139,17 +139,6 @@ export default class SitePopupView extends AbstractView {
     this.#document.addEventListener('keydown', this.#handleDocumentKeydown);
   }
 
-  // #removeHandlers = () => {
-  //   if(this.#handleDocumentKeydown !== null){
-  //     document.removeEventListener('keydown', this.#handleDocumentKeydown);
-  //     this.#handleDocumentKeydown = null;
-  //   }
-  //   if(this.#handleCloseButtonClick !== null){
-  //     this.#popupCloseButton.removeEventListener('click',this.#handleCloseButtonClick);
-  //     this.#handleCloseButtonClick = null;
-  //   }
-  // };
-
   #handleCloseButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.closePopup();

@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 const CSS_SELECTOR_CARD_CONTROL_ACTIVE = 'film-card__controls-item--active';
 const CSS_SELECTOR_DETAILS_CONTROL_ACTIVE = 'film-details__control-button--active';
 
@@ -60,3 +62,17 @@ export const updateItem = (items, update) => {
     ...items.slice(index + 1),
   ];
 };
+
+export const sortByDate = (filmA, filmB) => dayjs(filmB.releaseDate).diff(dayjs(filmA.releaseDate));
+
+export const callbackForEachLimited = (items, count, callback) => {
+  Array.from(
+    {length:Math.min(items.length, count)
+    },
+    (_, ix) => callback(items[ix]),
+  );
+};
+
+export const sortByRating = (a, b) => b.rating - a.rating;
+
+export const sortByComments = (a, b) => b.commentsCount - a.commentsCount;
