@@ -10,7 +10,7 @@ import { renderElement, RenderPosition, removeElement } from '../render.js';
 import { getFilmCardMockData } from '../mock/film-card-mock.js';
 import { generateFilter } from '../mock/filter.js';
 import MoviePresenter from './movie-presenter.js';
-import { updateItem, sortByDate } from '../utils/common.js';
+import { updateItem, sortByDate, callbackForEachLimited, sortByRating, sortByComments } from '../utils/common.js';
 
 const FILM_CARDS_COUNT = 48;
 const FILM_CARDS_COUNT_PER_STEP = 5;
@@ -60,28 +60,27 @@ export default class MoviesBoardPresenter {
   #renderAfterBegin = (container, element) => renderElement(container, element, RenderPosition.AFTERBEGIN)
 
   #renderFilmItems = (container, count, filmPresenters) => {
-    for (let ii = 0; ii < Math.min(this._filmCards.length, count); ii++) {
-      this.#renderFilm(this._filmCards[ii], container, filmPresenters);
-    }
+    callbackForEachLimited (
+      this._filmCards,
+      count,
+      (item)=>{this.#renderFilm(item, container, filmPresenters);},
+    );
   };
 
-  #sortByRating = (a, b) => b.rating - a.rating;
-
-
   #renderFilmItemsTopRated = (container, count, filmPresenters) => {
-    this._filmCardsSortedByRating = this._filmCards.slice().sort(this.#sortByRating);
-    for (let ii = 0; ii < Math.min(this._filmCards.length, count); ii++) {
-      this.#renderFilm(this._filmCardsSortedByRating[ii], container, filmPresenters);
-    }
+    callbackForEachLimited (
+      this._filmCards.slice().sort(sortByRating),
+      count,
+      (item)=>this.#renderFilm(item, container, filmPresenters)
+    );
   }
 
-  #sortByComments = (a, b) => b.commentsCount - a.commentsCount;
-
   #renderFilmItemsMostCommented = (container, count, filmPresenters) => {
-    this._filmCardsSortedByComments = this._filmCards.slice().sort(this.#sortByComments);
-    for (let ii = 0; ii < Math.min(this._filmCards.length, count); ii++) {
-      this.#renderFilm(this._filmCardsSortedByComments[ii], container, filmPresenters);
-    }
+    callbackForEachLimited (
+      this._filmCards.slice().sort(sortByComments),
+      count,
+      (item)=>this.#renderFilm(item, container, filmPresenters)
+    );
   }
 
   #initializeShowMoreClickHandler = (allFilmsContainer) => {
@@ -191,7 +190,8 @@ export default class MoviesBoardPresenter {
         break;
       case SortType.RATING:
         this._currentSortType = sortType.RATING;
-        this._filmCards = this._filmCardsSortedByRating;
+        this._filmCards = this._filmCards.slice().sort(sortByRating);
+        break;
     }
   }
 

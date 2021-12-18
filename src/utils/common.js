@@ -64,3 +64,15 @@ export const updateItem = (items, update) => {
 };
 
 export const sortByDate = (filmA, filmB) => dayjs(filmB.releaseDate).diff(dayjs(filmA.releaseDate));
+
+export const callbackForEachLimited = (items, count, callback) => {
+  Array.from(
+    {length:Math.min(items.length, count)
+    },
+    (_, ix) => callback(items[ix]),
+  );
+};
+
+export const sortByRating = (a, b) => b.rating - a.rating;
+
+export const sortByComments = (a, b) => b.commentsCount - a.commentsCount;
