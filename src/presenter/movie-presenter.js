@@ -77,6 +77,7 @@ export default class MoviePresenter {
     if (this.#filmPopupContainer.contains(prevFilmPopupViewData.element)) {
       replaceElement(this.#filmPopupView, prevFilmPopupViewData);
     }
+    this.#renderComments(document.querySelector('.film-details__comments-list'), this.#film);
   }
 
   #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
@@ -101,6 +102,7 @@ export default class MoviePresenter {
       document.querySelector('.film-details__comments-list'),
       data
     );
+    this.#filmPopupView.setChangeCommentsDataHandler(this.#handleChangeComments);
   };
 
   #removeDoublePopup = () => {
@@ -127,5 +129,12 @@ export default class MoviePresenter {
 
   #handleFavoriteClick = () => {
     this._changeData(Object.assign({}, this.#film, { isInFavorites: !this.#film.isInFavorites }));
+  }
+
+  #handleChangeComments = () => {
+    const newCommentsCount = this.#film.commentsCount += 1;
+    this.#film.comments.push(this.#filmPopupView._newComment);
+    this._changeData(Object.assign({}, this.#film, { commentsCount: newCommentsCount}));
+
   }
 }

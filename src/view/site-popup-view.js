@@ -1,4 +1,4 @@
-import { getDuration, isEscKey } from '../utils/common.js';
+import { getDuration, isEscKey, isCtrlCommandEnterKey } from '../utils/common.js';
 import { addPopupStatus } from '../utils/common.js';
 import AbstractView from './abstract-view.js';
 
@@ -118,18 +118,54 @@ const createPopupTemplate = (filmCardData) => {
 };
 
 export default class SitePopupView extends AbstractView {
-  #filmCardData = null;
+  #filmCard = null;
   #popupCloseButton = null;
   #document = null;
 
   constructor(filmCardData, document) {
     super();
-    this.#filmCardData = filmCardData;
+    // this.#filmCardData = filmCardData;
+    this.#filmCard = filmCardData;
     this.#document = document;
+    this._newComment = new Object();
+
+    this.setInputCallback();
+  }
+
+  #updateData = () => {
+
+    console.log(this._newComment);
+
+  }
+
+  setInputCallback = () => {
+    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#inputCallback);
+  }
+
+  #inputCallback = (evt) => {
+    if (evt) {
+      this._newComment.emoji = 'smile.png';
+      this._newComment.text = evt.target.value;
+      this._newComment.author = '';
+      this._newComment.date = '';
+    }
+  }
+
+  setChangeCommentsDataHandler = (callbackChangeComments) => {
+    this._callbackChangeComments.keydown = callbackChangeComments;
+    document.addEventListener('keydown', this.#isChangeCommentsDataHandler);
+  }
+
+  #isChangeCommentsDataHandler = (evt) => {
+    if (!isCtrlCommandEnterKey(evt)) {
+      return;
+    }
+    this._callbackChangeComments.keydown();
+    this.#updateData();
   }
 
   get template() {
-    return createPopupTemplate(this.#filmCardData);
+    return createPopupTemplate(this.#filmCard);
   }
 
   setPopupCloseHandler = (closePopup) => {
