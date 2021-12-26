@@ -215,7 +215,7 @@ export default class SitePopupView extends AbstractView {
 
   #handleCloseButtonClick = (evt) => {
     evt.preventDefault();
-    this._input.value = '';
+    this.#checkAndEraseInputAndEmoji();
     this._callback.closePopup();
   }
 
@@ -229,15 +229,21 @@ export default class SitePopupView extends AbstractView {
     }
   }
 
+  #checkAndEraseInputAndEmoji = () => {
+    if (this._isFocusOnInput || this._emojiIconContainer.contains) {
+      this.#eraseInputValueEmojiContainerOrClosePopup();
+      this._newComment.text = undefined;
+      this._newComment.emoji = undefined;
+    } else {
+      this._callback.closePopup();
+    }
+  }
+
   #handleDocumentKeydown = (evt)=>{
     if(!isEscKey(evt)){
       return;
     }
-    if (this._isFocusOnInput || this._emojiIconContainer.contains) {
-      this.#eraseInputValueEmojiContainerOrClosePopup();
-    } else {
-      this._callback.closePopup();
-    }
+    this.#checkAndEraseInputAndEmoji();
     this.#document.classList.add('hide-overflow');
   }
 
