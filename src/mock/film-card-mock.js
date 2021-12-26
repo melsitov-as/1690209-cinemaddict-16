@@ -10,7 +10,7 @@ const MAX_DURATION = 240;
 const MAX_COMMENTS = 15;
 const RELEASE_DATE_FORMAT = 'DD MMMM YYYY';
 const YEAR_FORMAT = 'YYYY';
-const COMMENTS_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
+export const COMMENTS_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
 const ELLIPSIS = '&#8230;';
 
 const IMAGES_LIST = [
@@ -66,7 +66,7 @@ const EMOJIES_LIST = [
 const formatWithIndex = (value, index)=>`${value} - ${1+index}`;
 const makeArrayWithIndex = (count, value) => Array(count).fill(value).map(formatWithIndex);
 
-const AUTHORS_LIST = makeArrayWithIndex(5,'Author');
+export const AUTHORS_LIST = makeArrayWithIndex(5,'Author');
 const ORIGINAL_TITLES_LIST = makeArrayWithIndex(5,'Original Title');
 
 const DIRECTORS_LIST = makeArrayWithIndex(5,'Director');

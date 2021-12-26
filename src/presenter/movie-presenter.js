@@ -16,6 +16,8 @@ export default class MoviePresenter {
     this.#filmPopupContainer = document.body;
 
     this._changeData = changeData;
+
+    this._isComments = false;
   }
 
   init = (film) => {
@@ -74,6 +76,7 @@ export default class MoviePresenter {
   };
 
   #replacePopup = (prevFilmPopupViewData) => {
+    this._isComments = false;
     if (this.#filmPopupContainer.contains(prevFilmPopupViewData.element)) {
       replaceElement(this.#filmPopupView, prevFilmPopupViewData);
     }
@@ -88,9 +91,13 @@ export default class MoviePresenter {
   };
 
   #renderComments = (container, filmCardData) => {
-    filmCardData.comments.forEach((item) => {
-      this.#renderBeforeEnd(container, new SitePopupCommentsView(item).element);
-    });
+    if (this._isComments === false) {
+      filmCardData.comments.forEach((item) => {
+        this.#renderBeforeEnd(container, new SitePopupCommentsView(item).element);
+      });
+      this._isComments = true;
+    }
+
   };
 
   #renderPopup = (data) => {
@@ -133,8 +140,9 @@ export default class MoviePresenter {
 
   #handleChangeComments = () => {
     const newCommentsCount = this.#film.commentsCount += 1;
-    this.#film.comments.push(this.#filmPopupView._newComment);
-    this._changeData(Object.assign({}, this.#film, { commentsCount: newCommentsCount}));
-
+    if (this.#filmPopupView._newComment.emoji && this.#filmPopupView._newComment.text) {
+      this.#film.comments.push(this.#filmPopupView._newComment);
+      this._changeData(Object.assign({}, this.#film, { commentsCount: newCommentsCount}));
+    }
   }
 }

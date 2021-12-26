@@ -1,6 +1,9 @@
 import { getDuration, isEscKey, isCtrlCommandEnterKey } from '../utils/common.js';
 import { addPopupStatus } from '../utils/common.js';
 import AbstractView from './abstract-view.js';
+import { renderElement, RenderPosition, removeElement, replaceElement } from '../render.js';
+import dayjs from 'dayjs';
+import { getRandomItem, AUTHORS_LIST, COMMENTS_DATE_FORMAT } from '../mock/film-card-mock.js';
 
 const createPopupTemplate = (filmCardData) => {
   const durationInHM = getDuration(filmCardData.totalDuration);
@@ -92,22 +95,22 @@ const createPopupTemplate = (filmCardData) => {
           <div class="film-details__emoji-list">
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
             <label class="film-details__emoji-label" for="emoji-smile">
-              <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji" data-emoji="smile.png">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
             <label class="film-details__emoji-label" for="emoji-sleeping">
-              <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji" data-emoji="sleeping.png">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
             <label class="film-details__emoji-label" for="emoji-puke">
-              <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji" data-emoji="puke.png">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
             <label class="film-details__emoji-label" for="emoji-angry">
-              <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji" data-emoji="angry.png">
             </label>
           </div>
         </div>
@@ -129,27 +132,64 @@ export default class SitePopupView extends AbstractView {
     this.#document = document;
     this._newComment = new Object();
 
-    this.setInputCallback();
+
+    this._emojiIconContainer = this.element.querySelector('.film-details__add-emoji-label');
+    this._input = this.element.querySelector('.film-details__comment-input');
+    this._isFocusOnInput = false;
+
+    this.#setInnerHandlers();
   }
 
-  #updateData = () => {
+  #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
 
-    console.log(this._newComment);
-
+  #setInnerHandlers = () => {
+    this.setInputCallback();
+    this.setChangeEmojiHandler();
+    this.addAuthor();
+    this.addDate();
+    this.setFocusOnInput();
   }
 
   setInputCallback = () => {
-    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#inputCallback);
+    this._input.addEventListener('input', this.#inputCallback);
   }
 
   #inputCallback = (evt) => {
     if (evt) {
-      this._newComment.emoji = 'smile.png';
       this._newComment.text = evt.target.value;
-      this._newComment.author = '';
-      this._newComment.date = '';
     }
   }
+
+  setChangeEmojiHandler = () => {
+    this.element.querySelectorAll('.film-details__emoji-label').forEach((item) => {
+      item.querySelector('img').addEventListener('click', this.#changeEmojiHandler);
+    });
+  }
+
+  #changeEmojiHandler = (evt) => {
+    const emojiIcon = evt.target.cloneNode(true);
+    emojiIcon.style.width = '55px';
+    emojiIcon.style.height = '55px';
+    this.#renderBeforeEnd(this._emojiIconContainer, emojiIcon);
+    this._newComment.emoji = emojiIcon.dataset.emoji;
+    this.#removeManyEmojies();
+  }
+
+  #removeManyEmojies = () => {
+    const emojiIcons = this._emojiIconContainer.querySelectorAll('img');
+    if (emojiIcons.length > 1) {
+      emojiIcons[0].remove();
+    }
+  }
+
+  addAuthor = () => {
+    this._newComment.author = getRandomItem(AUTHORS_LIST);
+  }
+
+  addDate = () => {
+    this._newComment.date = dayjs().format(COMMENTS_DATE_FORMAT);
+  }
+
 
   setChangeCommentsDataHandler = (callbackChangeComments) => {
     this._callbackChangeComments.keydown = callbackChangeComments;
@@ -161,7 +201,6 @@ export default class SitePopupView extends AbstractView {
       return;
     }
     this._callbackChangeComments.keydown();
-    this.#updateData();
   }
 
   get template() {
@@ -178,16 +217,38 @@ export default class SitePopupView extends AbstractView {
   #handleCloseButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.closePopup();
-    // this.#removeHandlers();
   }
 
   #handleDocumentKeydown = (evt)=>{
     if(!isEscKey(evt)){
       return;
     }
-    this._callback.closePopup();
-    // this.#removeHandlers();
-  };
+    if (this._isFocusOnInput) {
+      this._input.value = '';
+    } else {
+      this._callback.closePopup();
+    }
+  }
+
+  setFocusOnInput = () => this._input.addEventListener('focus', this.#isFocusOnInput);
+
+
+  #isFocusOnInput = (evt) =>  {
+    if (!evt) {
+      return;
+    }
+    this._isFocusOnInput = true;
+  }
+
+  setBlurOnInput = () => this._input.addEventListener('blur', this.#isBlurOnInput);
+
+  #isBlurOnInput = (evt) => {
+    if (!evt) {
+      return;
+    }
+    this._isFocusOnInput = false;
+    console.log(this._isFocusOnInput);
+  }
 
   #isInWatchlistHandler = () => {
     this._callbackWatchlist.click();
