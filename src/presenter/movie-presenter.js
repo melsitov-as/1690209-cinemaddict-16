@@ -87,7 +87,9 @@ export default class MoviePresenter {
 
   #closePopup = () => {
     removeElement(this.#filmPopupView);
-    this.#filmPopupContainer.classList.remove('hide-overflow');
+    if (!this._isFocusOnInput) {
+      this.#filmPopupContainer.classList.remove('hide-overflow');
+    }
   };
 
   #renderComments = (container, filmCardData) => {
@@ -97,7 +99,6 @@ export default class MoviePresenter {
       });
       this._isComments = true;
     }
-
   };
 
   #renderPopup = (data) => {

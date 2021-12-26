@@ -148,6 +148,7 @@ export default class SitePopupView extends AbstractView {
     this.addAuthor();
     this.addDate();
     this.setFocusOnInput();
+    this.setBlurOnInput();
   }
 
   setInputCallback = () => {
@@ -247,7 +248,6 @@ export default class SitePopupView extends AbstractView {
       return;
     }
     this._isFocusOnInput = false;
-    console.log(this._isFocusOnInput);
   }
 
   #isInWatchlistHandler = () => {
