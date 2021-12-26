@@ -1,7 +1,7 @@
 import SiteFilmCardView from '../view/site-film-card-view.js';
 import SitePopupView from '../view/site-popup-view.js';
 import SitePopupCommentsView from '../view/site-popup-comments-view.js';
-import { renderElement, RenderPosition, removeElement, replaceElement } from '../render.js';
+import {removeElement, replaceElement, renderBeforeEnd } from '../render.js';
 
 export default class MoviePresenter {
   #film = null;
@@ -42,7 +42,7 @@ export default class MoviePresenter {
 
 
     if (!prevFilmView) {
-      this.#renderBeforeEnd(this.#filmsListContainer, this.#filmView);
+      renderBeforeEnd(this.#filmsListContainer, this.#filmView);
     }
 
     if (prevFilmView) {
@@ -83,8 +83,6 @@ export default class MoviePresenter {
     this.#renderComments(document.querySelector('.film-details__comments-list'), this.#film);
   }
 
-  #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
-
   #closePopup = () => {
     removeElement(this.#filmPopupView);
     if (!this._isFocusOnInput) {
@@ -95,14 +93,14 @@ export default class MoviePresenter {
   #renderComments = (container, filmCardData) => {
     if (this._isComments === false) {
       filmCardData.comments.forEach((item) => {
-        this.#renderBeforeEnd(container, new SitePopupCommentsView(item).element);
+        renderBeforeEnd(container, new SitePopupCommentsView(item).element);
       });
       this._isComments = true;
     }
   };
 
   #renderPopup = (data) => {
-    this.#renderBeforeEnd(
+    renderBeforeEnd(
       this.#filmPopupContainer,
       this.#filmPopupView);
     this.#filmPopupContainer.classList.add('hide-overflow');

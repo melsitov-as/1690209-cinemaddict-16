@@ -1,7 +1,7 @@
 import { getDuration, isEscKey, isCtrlCommandEnterKey } from '../utils/common.js';
 import { addPopupStatus } from '../utils/common.js';
 import AbstractView from './abstract-view.js';
-import { renderElement, RenderPosition, removeElement, replaceElement } from '../render.js';
+import { renderBeforeEnd } from '../render.js';
 import dayjs from 'dayjs';
 import { getRandomItem, AUTHORS_LIST, COMMENTS_DATE_FORMAT } from '../mock/film-card-mock.js';
 
@@ -140,8 +140,6 @@ export default class SitePopupView extends AbstractView {
     this.#setInnerHandlers();
   }
 
-  #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
-
   #setInnerHandlers = () => {
     this.setInputCallback();
     this.setChangeEmojiHandler();
@@ -168,18 +166,18 @@ export default class SitePopupView extends AbstractView {
   }
 
   #changeEmojiHandler = (evt) => {
-    const emojiIcon = evt.target.cloneNode(true);
-    emojiIcon.style.width = '55px';
-    emojiIcon.style.height = '55px';
-    this.#renderBeforeEnd(this._emojiIconContainer, emojiIcon);
-    this._newComment.emoji = emojiIcon.dataset.emoji;
+    this._newCommentEmojiIcon = evt.target.cloneNode(true);
+    this._newCommentEmojiIcon.style.width = '55px';
+    this._newCommentEmojiIcon.style.height = '55px';
+    renderBeforeEnd(this._emojiIconContainer, this._newCommentEmojiIcon);
+    this._newComment.emoji = this._newCommentEmojiIcon.dataset.emoji;
     this.#removeManyEmojies();
   }
 
   #removeManyEmojies = () => {
-    const emojiIcons = this._emojiIconContainer.querySelectorAll('img');
-    if (emojiIcons.length > 1) {
-      emojiIcons[0].remove();
+    this._emojiIcons = this._emojiIconContainer.querySelectorAll('img');
+    if (this._emojiIcons.length > 1) {
+      this._emojiIcons[0].remove();
     }
   }
 
@@ -217,18 +215,30 @@ export default class SitePopupView extends AbstractView {
 
   #handleCloseButtonClick = (evt) => {
     evt.preventDefault();
+    this._input.value = '';
     this._callback.closePopup();
+  }
+
+  #eraseInputValueEmojiContainerOrClosePopup = () => {
+    if (this._emojiIconContainer.contains(this._newCommentEmojiIcon) || this._input.value !== '') {
+      this._input.value = '';
+      this._newCommentEmojiIcon.remove();
+      this._emojiIcons = [];
+    } else {
+      this._callback.closePopup();
+    }
   }
 
   #handleDocumentKeydown = (evt)=>{
     if(!isEscKey(evt)){
       return;
     }
-    if (this._isFocusOnInput) {
-      this._input.value = '';
+    if (this._isFocusOnInput || this._emojiIconContainer.contains) {
+      this.#eraseInputValueEmojiContainerOrClosePopup();
     } else {
       this._callback.closePopup();
     }
+    this.#document.classList.add('hide-overflow');
   }
 
   setFocusOnInput = () => this._input.addEventListener('focus', this.#isFocusOnInput);
