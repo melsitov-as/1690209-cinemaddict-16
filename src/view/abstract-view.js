@@ -6,6 +6,7 @@ export default class AbstractView {
   _callbackWatchlist = {};
   _callbackWatched = {};
   _callbackInFavorites = {};
+  _callbackChangeComments = {};
 
   constructor() {
     if (new.target === AbstractView) {

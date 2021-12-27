@@ -1,7 +1,7 @@
 import SiteFilmCardView from '../view/site-film-card-view.js';
 import SitePopupView from '../view/site-popup-view.js';
 import SitePopupCommentsView from '../view/site-popup-comments-view.js';
-import { renderElement, RenderPosition, removeElement, replaceElement } from '../render.js';
+import {removeElement, replaceElement, renderBeforeEnd } from '../render.js';
 
 export default class MoviePresenter {
   #film = null;
@@ -16,6 +16,8 @@ export default class MoviePresenter {
     this.#filmPopupContainer = document.body;
 
     this._changeData = changeData;
+
+    this._isComments = false;
   }
 
   init = (film) => {
@@ -40,7 +42,7 @@ export default class MoviePresenter {
 
 
     if (!prevFilmView) {
-      this.#renderBeforeEnd(this.#filmsListContainer, this.#filmView);
+      renderBeforeEnd(this.#filmsListContainer, this.#filmView);
     }
 
     if (prevFilmView) {
@@ -74,26 +76,31 @@ export default class MoviePresenter {
   };
 
   #replacePopup = (prevFilmPopupViewData) => {
+    this._isComments = false;
     if (this.#filmPopupContainer.contains(prevFilmPopupViewData.element)) {
       replaceElement(this.#filmPopupView, prevFilmPopupViewData);
     }
+    this.#renderComments(document.querySelector('.film-details__comments-list'), this.#film);
   }
-
-  #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
 
   #closePopup = () => {
     removeElement(this.#filmPopupView);
-    this.#filmPopupContainer.classList.remove('hide-overflow');
+    if (!this._isFocusOnInput) {
+      this.#filmPopupContainer.classList.remove('hide-overflow');
+    }
   };
 
   #renderComments = (container, filmCardData) => {
-    filmCardData.comments.forEach((item) => {
-      this.#renderBeforeEnd(container, new SitePopupCommentsView(item).element);
-    });
+    if (this._isComments === false) {
+      filmCardData.comments.forEach((item) => {
+        renderBeforeEnd(container, new SitePopupCommentsView(item).element);
+      });
+      this._isComments = true;
+    }
   };
 
   #renderPopup = (data) => {
-    this.#renderBeforeEnd(
+    renderBeforeEnd(
       this.#filmPopupContainer,
       this.#filmPopupView);
     this.#filmPopupContainer.classList.add('hide-overflow');
@@ -101,6 +108,7 @@ export default class MoviePresenter {
       document.querySelector('.film-details__comments-list'),
       data
     );
+    this.#filmPopupView.setChangeCommentsDataHandler(this.#handleChangeComments);
   };
 
   #removeDoublePopup = () => {
@@ -127,5 +135,13 @@ export default class MoviePresenter {
 
   #handleFavoriteClick = () => {
     this._changeData(Object.assign({}, this.#film, { isInFavorites: !this.#film.isInFavorites }));
+  }
+
+  #handleChangeComments = () => {
+    const newCommentsCount = this.#film.commentsCount += 1;
+    if (this.#filmPopupView._newComment.emoji && this.#filmPopupView._newComment.text) {
+      this.#film.comments.push(this.#filmPopupView._newComment);
+      this._changeData(Object.assign({}, this.#film, { commentsCount: newCommentsCount}));
+    }
   }
 }

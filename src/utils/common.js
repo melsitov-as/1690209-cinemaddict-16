@@ -49,6 +49,8 @@ export const addPopupStatus = (filmCardData) => ( {
 
 export const isEscKey = (evt)=>(evt.key === 'Escape' || evt.key === 'esc');
 
+export const isCtrlCommandEnterKey = (evt) => ((evt.ctrlKey && evt.key === 'Enter') || (evt.commandKey && evt === 'Enter'));
+
 export const updateItem = (items, update) => {
   const index = items.findIndex((item) => item.id === update.id);
 

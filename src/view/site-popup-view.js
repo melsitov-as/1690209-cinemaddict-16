@@ -1,6 +1,9 @@
-import { getDuration, isEscKey } from '../utils/common.js';
+import { getDuration, isEscKey, isCtrlCommandEnterKey } from '../utils/common.js';
 import { addPopupStatus } from '../utils/common.js';
 import AbstractView from './abstract-view.js';
+import { renderBeforeEnd } from '../render.js';
+import dayjs from 'dayjs';
+import { getRandomItem, AUTHORS_LIST, COMMENTS_DATE_FORMAT } from '../mock/film-card-mock.js';
 
 const createPopupTemplate = (filmCardData) => {
   const durationInHM = getDuration(filmCardData.totalDuration);
@@ -92,22 +95,22 @@ const createPopupTemplate = (filmCardData) => {
           <div class="film-details__emoji-list">
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
             <label class="film-details__emoji-label" for="emoji-smile">
-              <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji" data-emoji="smile.png">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
             <label class="film-details__emoji-label" for="emoji-sleeping">
-              <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji" data-emoji="sleeping.png">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
             <label class="film-details__emoji-label" for="emoji-puke">
-              <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji" data-emoji="puke.png">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
             <label class="film-details__emoji-label" for="emoji-angry">
-              <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji" data-emoji="angry.png">
             </label>
           </div>
         </div>
@@ -118,18 +121,89 @@ const createPopupTemplate = (filmCardData) => {
 };
 
 export default class SitePopupView extends AbstractView {
-  #filmCardData = null;
+  #filmCard = null;
   #popupCloseButton = null;
   #document = null;
 
   constructor(filmCardData, document) {
     super();
-    this.#filmCardData = filmCardData;
+    // this.#filmCardData = filmCardData;
+    this.#filmCard = filmCardData;
     this.#document = document;
+    this._newComment = new Object();
+
+
+    this._emojiIconContainer = this.element.querySelector('.film-details__add-emoji-label');
+    this._input = this.element.querySelector('.film-details__comment-input');
+    this._isFocusOnInput = false;
+
+    this.#setInnerHandlers();
+  }
+
+  #setInnerHandlers = () => {
+    this.setInputCallback();
+    this.setChangeEmojiHandler();
+    this.addAuthor();
+    this.addDate();
+    this.setFocusOnInput();
+    this.setBlurOnInput();
+  }
+
+  setInputCallback = () => {
+    this._input.addEventListener('input', this.#inputCallback);
+  }
+
+  #inputCallback = (evt) => {
+    if (evt) {
+      this._newComment.text = evt.target.value;
+    }
+  }
+
+  setChangeEmojiHandler = () => {
+    this.element.querySelectorAll('.film-details__emoji-label').forEach((item) => {
+      item.querySelector('img').addEventListener('click', this.#changeEmojiHandler);
+    });
+  }
+
+  #changeEmojiHandler = (evt) => {
+    this._newCommentEmojiIcon = evt.target.cloneNode(true);
+    this._newCommentEmojiIcon.style.width = '55px';
+    this._newCommentEmojiIcon.style.height = '55px';
+    renderBeforeEnd(this._emojiIconContainer, this._newCommentEmojiIcon);
+    this._newComment.emoji = this._newCommentEmojiIcon.dataset.emoji;
+    this.#removeManyEmojies();
+  }
+
+  #removeManyEmojies = () => {
+    this._emojiIcons = this._emojiIconContainer.querySelectorAll('img');
+    if (this._emojiIcons.length > 1) {
+      this._emojiIcons[0].remove();
+    }
+  }
+
+  addAuthor = () => {
+    this._newComment.author = getRandomItem(AUTHORS_LIST);
+  }
+
+  addDate = () => {
+    this._newComment.date = dayjs().format(COMMENTS_DATE_FORMAT);
+  }
+
+
+  setChangeCommentsDataHandler = (callbackChangeComments) => {
+    this._callbackChangeComments.keydown = callbackChangeComments;
+    document.addEventListener('keydown', this.#isChangeCommentsDataHandler);
+  }
+
+  #isChangeCommentsDataHandler = (evt) => {
+    if (!isCtrlCommandEnterKey(evt)) {
+      return;
+    }
+    this._callbackChangeComments.keydown();
   }
 
   get template() {
-    return createPopupTemplate(this.#filmCardData);
+    return createPopupTemplate(this.#filmCard);
   }
 
   setPopupCloseHandler = (closePopup) => {
@@ -141,17 +215,56 @@ export default class SitePopupView extends AbstractView {
 
   #handleCloseButtonClick = (evt) => {
     evt.preventDefault();
+    this.#checkAndEraseInputAndEmoji();
     this._callback.closePopup();
-    // this.#removeHandlers();
+  }
+
+  #eraseInputValueEmojiContainerOrClosePopup = () => {
+    if (this._emojiIconContainer.contains(this._newCommentEmojiIcon) || this._input.value !== '') {
+      this._input.value = '';
+      this._newCommentEmojiIcon.remove();
+      this._emojiIcons = [];
+    } else {
+      this._callback.closePopup();
+    }
+  }
+
+  #checkAndEraseInputAndEmoji = () => {
+    if (this._isFocusOnInput || this._emojiIconContainer.contains) {
+      this.#eraseInputValueEmojiContainerOrClosePopup();
+      this._newComment.text = undefined;
+      this._newComment.emoji = undefined;
+    } else {
+      this._callback.closePopup();
+    }
   }
 
   #handleDocumentKeydown = (evt)=>{
     if(!isEscKey(evt)){
       return;
     }
-    this._callback.closePopup();
-    // this.#removeHandlers();
-  };
+    this.#checkAndEraseInputAndEmoji();
+    this.#document.classList.add('hide-overflow');
+  }
+
+  setFocusOnInput = () => this._input.addEventListener('focus', this.#isFocusOnInput);
+
+
+  #isFocusOnInput = (evt) =>  {
+    if (!evt) {
+      return;
+    }
+    this._isFocusOnInput = true;
+  }
+
+  setBlurOnInput = () => this._input.addEventListener('blur', this.#isBlurOnInput);
+
+  #isBlurOnInput = (evt) => {
+    if (!evt) {
+      return;
+    }
+    this._isFocusOnInput = false;
+  }
 
   #isInWatchlistHandler = () => {
     this._callbackWatchlist.click();

@@ -77,3 +77,4 @@ export const replaceElement = (newChild, oldChild) => {
 
   parent.replaceChild(newChild, oldChild);
 };
+export const renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
