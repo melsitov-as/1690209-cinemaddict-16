@@ -10,7 +10,6 @@ const filmCards = Array.from({length: FILM_CARDS_COUNT}, getFilmCardMockData);
 
 const moviesModel = new MoviesModel();
 moviesModel.films = filmCards;
-console.log(moviesModel.films);
 new MoviesBoardPresenter(main, moviesModel).init();
 
 // Комментарий для коммита
