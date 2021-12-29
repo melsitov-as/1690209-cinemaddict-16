@@ -11,13 +11,21 @@ export default class MoviePresenter {
   #filmsListContainer = null;
   #filmPopupContainer = null;
 
-  constructor(filmsContainer, changeData) {
+  #moviesModel = null;
+
+  constructor(filmsContainer, changeData, moviesModel) {
     this.#filmsListContainer = filmsContainer;
     this.#filmPopupContainer = document.body;
 
     this._changeData = changeData;
 
     this._isComments = false;
+
+    this.#moviesModel = moviesModel;
+  }
+
+  get films() {
+    return this.#moviesModel.movies;
   }
 
   init = (film) => {
