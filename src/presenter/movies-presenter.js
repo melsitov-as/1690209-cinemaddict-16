@@ -22,7 +22,7 @@ export default class MoviesBoardPresenter {
   #showMoreButton = new SiteShowMoreView()
   #siteMenu = null;
   #moviesModel = null;
-  #currentFilter = null;
+  #currentFilter = 'all';
 
   constructor(main, moviesModel) {
     this._mainContainer = main;
@@ -197,6 +197,13 @@ export default class MoviesBoardPresenter {
   
   #clearBoard = ()=>{}
 
+  #rerenderFilter = (newFilter)=>{
+    this.#currentFilter = newFilter; 
+    this.#clearBoard(); 
+    this.#updateSiteMenu()
+    this.#renderFilms();
+  }
+  
   #workOnFilters = (container)=>{
     const temp = this.#siteMenu;
     const newMenu = new SiteMenuView(
@@ -205,15 +212,20 @@ export default class MoviesBoardPresenter {
     );
     newMenu.subsribe(
       'all',
-      ()=>{
-        this.#currentFilter = 'all'; 
-        this.clearBoard(); 
-        this.#renderFilms();
-      },
+      ()=>#rerenderFilter('all'),
     );
-    newMenu.subsribe('watchlist',()=>{this.#currentFilter = 'watchlist'; this.clearBoard(); this.#renderFilms()});
-    newMenu.subsribe('history',()=>{this.#currentFilter = 'history'; this.clearBoard(); this.#renderFilms()});
-    newMenu.subsribe('favorites',()=>{this.#currentFilter = 'favorites'; this.clearBoard(); this.#renderFilms()});
+    newMenu.subsribe(
+      'watchlist',
+      ()=>#rerenderFilter('watchlist'),
+    );
+    newMenu.subsribe(
+      'history',
+      ()=>#rerenderFilter('history'),
+    );
+    newMenu.subsribe(
+      'favorites',
+      ()=>#rerenderFilter('favorites'),
+    );
     
     if(temp){
       replaceElement(container, temp.element, newMenu.element);
@@ -255,10 +267,11 @@ export default class MoviesBoardPresenter {
   //  }
 
    #updateSiteMenu = () => {
-     removeElement(this.#siteMenu);
-     this._filters = generateFilter(this.films);
-     this.#siteMenu = new SiteMenuView(this._filters);
-     this.#renderAfterBegin(this._mainContainer, this.#siteMenu.element);
+     //removeElement(this.#siteMenu);
+     //this._filters = generateFilter(this.films);
+     //this.#siteMenu = new SiteMenuView(this._filters);
+     this.#workOnFilters(this._mainContainer)
+     //this.#renderAfterBegin(this._mainContainer, this.#siteMenu.element);
    }
 
    // #sortFilmCards = (sortType) => {
@@ -283,10 +296,6 @@ export default class MoviesBoardPresenter {
       container.removeChild(presenter.movie.element);
     });
     presenters.forEach((presenter) => presenter.destroy());
-  }
-
-  #clearBoard = () => {
-
   }
 
   #handleSortTypeChange = (sortType) => {
