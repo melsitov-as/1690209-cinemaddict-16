@@ -195,7 +195,7 @@ export default class MoviesBoardPresenter {
     }
   };
   
-  
+  #clearBoard = ()=>{}
 
   #workOnFilters = (container)=>{
     const temp = this.#siteMenu;
@@ -203,10 +203,17 @@ export default class MoviesBoardPresenter {
       generateFilter(this.#moviesModel.films),
       this.#currentFilter
     );
-    newMenu.subsribe('all',()=>{this.#currentFilter = 'all'; this.#renderFilms()});
-    newMenu.subsribe('watchlist',()=>{this.#currentFilter = 'watchlist'; this.#renderFilms()});
-    newMenu.subsribe('history',()=>{this.#currentFilter = 'history'; this.#renderFilms()});
-    newMenu.subsribe('favorites',()=>{this.#currentFilter = 'favorites'; this.#renderFilms()});
+    newMenu.subsribe(
+      'all',
+      ()=>{
+        this.#currentFilter = 'all'; 
+        this.clearBoard(); 
+        this.#renderFilms();
+      },
+    );
+    newMenu.subsribe('watchlist',()=>{this.#currentFilter = 'watchlist'; this.clearBoard(); this.#renderFilms()});
+    newMenu.subsribe('history',()=>{this.#currentFilter = 'history'; this.clearBoard(); this.#renderFilms()});
+    newMenu.subsribe('favorites',()=>{this.#currentFilter = 'favorites'; this.clearBoard(); this.#renderFilms()});
     
     if(temp){
       replaceElement(container, temp.element, newMenu.element);
