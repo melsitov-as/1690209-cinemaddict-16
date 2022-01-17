@@ -22,6 +22,7 @@ export default class MoviesBoardPresenter {
   #showMoreButton = new SiteShowMoreView()
   #siteMenu = null;
   #moviesModel = null;
+  #currentFilter = null;
 
   constructor(main, moviesModel) {
     this._mainContainer = main;
@@ -45,13 +46,23 @@ export default class MoviesBoardPresenter {
   }
 
   get films() {
+    const items = this.#moviesModel.films.filter((item)=>{
+      return this.#currentFilter('all')
+        || (
+        item.watched && this.#currentFilter === 'history'///....
+        ||
+        item.isFavorit && this.#currentFilter === 'favorites'
+        ||
+        item.isInWatchList && this.#currentFilter === 'watchlist'
+      )
+    });
     switch (this._currentSortType) {
       case SortType.DATE:
-        return [...this.#moviesModel.films].sort(sortByDate);
+        return items.sort(sortByDate);
       case SortType.RATING:
-        return [...this.#moviesModel.films].sort(sortByRating);
+        return items.sort(sortByRating);
     }
-    return this.#moviesModel.films;
+    return items;
   }
 
   init = () => {
@@ -183,13 +194,34 @@ export default class MoviesBoardPresenter {
       this.#renderMostCommented(container);
     }
   };
+  
+  
 
+  #workOnFilters = (container)=>{
+    const temp = this.#siteMenu;
+    const newMenu = new SiteMenuView(
+      generateFilter(this.#moviesModel.films),
+      this.#currentFilter
+    );
+    newMenu.subsribe('all',()=>{this.#currentFilter = 'all'; this.#renderFilms()});
+    newMenu.subsribe('watchlist',()=>{this.#currentFilter = 'watchlist'; this.#renderFilms()});
+    newMenu.subsribe('history',()=>{this.#currentFilter = 'history'; this.#renderFilms()});
+    newMenu.subsribe('favorites',()=>{this.#currentFilter = 'favorites'; this.#renderFilms()});
+    
+    if(temp){
+      replaceElement(container, temp.element, newMenu.element);
+    } else{
+      render(container,newMenu.element)
+    }
+    this.#siteMenu = newMenu;
+  };
+  
   #renderSite = (container) => {
     this.#renderBeforeEnd(
       document.querySelector('header'),
       new SiteRatingView().element
     );
-    this.#renderBeforeEnd(container, this.#siteMenu);
+    this.#renderBeforeEnd(container, this.#workOnFilters());
     this.#renderBeforeEnd(container, this._sortMenu);
     this.#renderBeforeEnd(container, new SiteFilmsView().element);
     this.#renderFilms(container.querySelector('.films'));
