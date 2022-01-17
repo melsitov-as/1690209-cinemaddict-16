@@ -1,10 +1,5 @@
 import AbstractView from './abstract-view.js';
-
-export const SortType = {
-  DEFAULT: 'default',
-  DATE: 'date',
-  RATING: 'rating',
-};
+import { SortType } from '../const.js';
 
 export const createSiteSortTemplate = () => `<ul class="sort">
     <li><a href="#" class="sort__button sort__button--active" data-sort-type="${SortType.DEFAULT}">Sort by default</a></li>

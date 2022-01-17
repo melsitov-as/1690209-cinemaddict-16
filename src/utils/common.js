@@ -51,19 +51,19 @@ export const isEscKey = (evt)=>(evt.key === 'Escape' || evt.key === 'esc');
 
 export const isCtrlCommandEnterKey = (evt) => ((evt.ctrlKey && evt.key === 'Enter') || (evt.commandKey && evt === 'Enter'));
 
-export const updateItem = (items, update) => {
-  const index = items.findIndex((item) => item.id === update.id);
+// export const updateItem = (items, update) => {
+//   const index = items.findIndex((item) => item.id === update.id);
 
-  if (index === -1) {
-    return items;
-  }
+//   if (index === -1) {
+//     return items;
+//   }
 
-  return [
-    ...items.slice(0, index),
-    update,
-    ...items.slice(index + 1),
-  ];
-};
+//   return [
+//     ...items.slice(0, index),
+//     update,
+//     ...items.slice(index + 1),
+//   ];
+// };
 
 export const sortByDate = (filmA, filmB) => dayjs(filmB.releaseDate).diff(dayjs(filmA.releaseDate));
 

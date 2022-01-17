@@ -2,6 +2,7 @@ import SiteFilmCardView from '../view/site-film-card-view.js';
 import SitePopupView from '../view/site-popup-view.js';
 import SitePopupCommentsView from '../view/site-popup-comments-view.js';
 import {removeElement, replaceElement, renderBeforeEnd } from '../render.js';
+import { UpdateType, UserAction } from '../const.js';
 
 export default class MoviePresenter {
   #film = null;
@@ -134,15 +135,24 @@ export default class MoviePresenter {
   };
 
   #handleWatchlistClick = () => {
-    this._changeData(Object.assign({}, this.#film, { isInWatchlist: !this.#film.isInWatchlist }));
+    this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      Object.assign({}, this.#film, { isInWatchlist: !this.#film.isInWatchlist }));
   }
 
   #handleWatchedClick = () => {
-    this._changeData(Object.assign({}, this.#film, { isWatched: !this.#film.isWatched }));
+    this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      Object.assign({}, this.#film, { isWatched: !this.#film.isWatched }));
   }
 
   #handleFavoriteClick = () => {
-    this._changeData(Object.assign({}, this.#film, { isInFavorites: !this.#film.isInFavorites }));
+    this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      Object.assign({}, this.#film, { isInFavorites: !this.#film.isInFavorites }));
   }
 
   #handleChangeComments = () => {
