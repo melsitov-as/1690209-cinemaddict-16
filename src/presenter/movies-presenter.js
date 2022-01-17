@@ -60,7 +60,6 @@ export default class MoviesBoardPresenter {
   }
 
   #handleViewAction = (actionType, updateType, update) => {
-    console.log(actionType, updateType, update);
     switch(actionType) {
       case UserAction.UPDATE_FILM:
         this.#moviesModel.updateFilm(updateType, update);
@@ -68,7 +67,6 @@ export default class MoviesBoardPresenter {
   }
 
   #handleModelEvent = (updateType, data) => {
-    console.log(updateType, data);
     switch(updateType) {
       case UpdateType.PATCH:
 
@@ -83,6 +81,11 @@ export default class MoviesBoardPresenter {
         if ( this._filmPresentersMostCommented.get(data.id) !== undefined) {
           this._filmPresentersMostCommented.get(data.id).init(data);
         }
+        break;
+      case UpdateType.MINOR:
+        break;
+      case UpdateType.MAJOR:
+        break;
     }
   }
 
@@ -139,7 +142,7 @@ export default class MoviesBoardPresenter {
 
   #renderAllFilmsContainer = (container) => {
     this.#renderBeforeEnd(container, this._siteAllFilmsTemplate);
-    this._allFilmsContainer = container.querySelector('.films-list__container');
+    this._allFilmsContainer = container.querySelector('.films-list--regular').querySelector('.films-list__container');
   }
 
   #renderAllFilms = () => {
@@ -152,13 +155,15 @@ export default class MoviesBoardPresenter {
 
   #renderTopRated = (container) => {
     this.#renderBeforeEnd(container, new SiteTopRatedFilmsView().element);
-    this.#renderFilmItemsTopRated(container.querySelector('.films-list--top-rated').querySelector('.films-list__container'), 2, this._filmPresentersTopRated);
+    this._topRatedFilmsContainer = container.querySelector('.films-list--top-rated').querySelector('.films-list__container');
+    this.#renderFilmItemsTopRated(this._topRatedFilmsContainer, 2, this._filmPresentersTopRated);
   }
 
 
   #renderMostCommented = (container) => {
     this.#renderBeforeEnd(container, new SiteMostCommentedFilmsView().element);
-    this.#renderFilmItemsMostCommented(container.querySelector('.films-list--most-commented').querySelector('.films-list__container'), 2, this._filmPresentersMostCommented);
+    this._mostCommentedFilmsContainer = container.querySelector('.films-list--most-commented').querySelector('.films-list__container');
+    this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
   };
 
   #showNoFilmsMessage = (container) => {
@@ -234,11 +239,15 @@ export default class MoviesBoardPresenter {
    //   }
    // }
 
-  #clearFilmsListRegular = () => {
-    this._filmPresentersRegular.forEach((presenter) => {
-      this._allFilmsContainer.removeChild(presenter.movie.element);
+  #clearFilms = (presenters, container) => {
+    presenters.forEach((presenter) => {
+      container.removeChild(presenter.movie.element);
     });
-    this._filmPresentersRegular.forEach((presenter) => presenter.destroy());
+    presenters.forEach((presenter) => presenter.destroy());
+  }
+
+  #clearBoard = () => {
+
   }
 
   #handleSortTypeChange = (sortType) => {
@@ -247,7 +256,7 @@ export default class MoviesBoardPresenter {
     }
     // this.#sortFilmCards(sortType);
     this._currentSortType = sortType;
-    this.#clearFilmsListRegular();
+    this.#clearFilms(this._filmPresentersRegular, this._allFilmsContainer);
     this._filmPresentersRegular = new Map();
     this.#renderAllFilms();
   }
