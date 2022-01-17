@@ -22,4 +22,18 @@ export default class SiteMenuView extends AbstractView {
   get template() {
     return createSiteMenuTemplate(this.#filters);
   }
+  
+  get element(){
+    const result = base.element;
+    
+    result.addEventListener('click',(evt)=>{
+      const {href} = evt.target;
+      if(href){
+        const parts = href.split('#');
+        notify(parts[1]);
+      }
+    });
+    
+    return result;
+  }
 }
