@@ -2,7 +2,7 @@ import { createElement } from '../render.js';
 
 export default class AbstractView {
   #element = null;
-  _callback = {};
+  #callback = {};
   _callbackWatchlist = {};
   _callbackWatched = {};
   _callbackInFavorites = {};
@@ -32,5 +32,17 @@ export default class AbstractView {
 
   removeElement() {
     this.#element = null;
+  }
+  subscribe(name, callback){
+    this.#callback[name] = callback;
+  }
+  unsubscribe(name){
+    delete this.#callback[name]
+  }
+  notify(name, data){
+    const callback = this.#callback[name];
+    if(typeof callback === 'funciton'){
+      callback(data);
+    } 
   }
 }
