@@ -36,6 +36,7 @@ export default class SiteMenuView extends AbstractView {
         const parts = href.split('#');
         this.notify(parts[1]);
       }
+
     });
 
     return result;

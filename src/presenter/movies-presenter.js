@@ -30,7 +30,7 @@ export default class MoviesBoardPresenter {
     this.#moviesModel = moviesModel;
     this._filters = generateFilter(this.films);
 
-    this.#siteMenu = new SiteMenuView(this._filters).element;
+    this.#siteMenu = new SiteMenuView(this._filters, this.#currentFilter);
 
     this._filmPresentersRegular = new Map();
     this._filmPresentersTopRated = new Map();
@@ -46,41 +46,122 @@ export default class MoviesBoardPresenter {
   }
 
   get films() {
-    // const items = this.#moviesModel.films.filter((item)=>this.#moviesModel.films,
-    //     || (
-    //       item.watched && this.#currentFilter === 'history'///....
-    //     ||
-    //     item.isFavorites && this.#currentFilter === 'favorites'
-    //     ||
-    //     item.isInWatchList && this.#currentFilter === 'watchlist'
-    //     ));
-    switch (this.#currentFilter) {
-      case this.#currentFilter === 'all':
-        this.#moviesModel.films.filter((item) => item);
-        break;
-      case this.#currentFilter === 'history':
-        this.#moviesModel.films.filter((item) => item.isWatched);
-        break;
-      case this.#currentFilter === 'favorites':
-        this.#moviesModel.films.filter((item) => item.isInFavorites);
-        break;
-      case this.#currentFilter === 'watchlist':
-        this.#moviesModel.films.filter((item) => item.isInWatchlist);
-    }
+    const items = this.#moviesModel.films.filter((item)=> this.#currentFilter === 'all'
+        || (
+          item.watched && this.#currentFilter === 'history'///....
+        ||
+        item.isInFavorites && this.#currentFilter === 'favorites'
+        ||
+        item.isInWatchList && this.#currentFilter === 'watchlist'
+        ));
+    //   switch (this.#currentFilter) {
+    //     case this.#currentFilter === 'all':
+    //       this.#moviesModel.films.filter((item) => item);
+    //       break;
+    //     case this.#currentFilter === 'history':
+    //       this.#moviesModel.films.filter((item) => item.isWatched);
+    //       break;
+    //     case this.#currentFilter === 'favorites':
+    //       this.#moviesModel.films.filter((item) => item.isInFavorites);
+    //       break;
+    //     case this.#currentFilter === 'watchlist':
+    //       this.#moviesModel.films.filter((item) => item.isInWatchlist);
+    //   }
     switch (this._currentSortType) {
       case SortType.DATE:
-        return this.#moviesModel.films.sort(sortByDate);
+        return items.sort(sortByDate);
       case SortType.RATING:
-        return this.#moviesModel.films.sort(sortByRating);
+        return items.sort(sortByRating);
     }
-    return this.#moviesModel.films;
+    return items;
   }
 
   init = () => {
-    // this.#renderSite(this._mainContainer);
+    this.#renderSite(this._mainContainer);
     // this._sortMenu.setSortTypeChangeHandler(this.#handleSortTypeChange);
     console.log(this.#moviesModel.films);
   }
+
+  #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
+
+  // #clearBoard = ()=>{
+  //   removeElement(this.#siteMenu);
+  // }
+
+  #rerenderFilter = (newFilter)=>{
+    this.#currentFilter = newFilter;
+    console.log(this.#currentFilter);
+    this._newMenu = new SiteMenuView(
+      generateFilter(this.#moviesModel.films),
+      this.#currentFilter
+    );
+    removeElement(this.#siteMenu);
+    this.#renderBeforeEnd(this._mainContainer, this._newMenu);
+    this.#workOnFilters();
+    // if(temp){
+    //   replaceElement(temp.element, newMenu.element);
+    // } else{
+    //   this.#renderBeforeEnd(this._mainContainer,newMenu.element);
+    // }
+  }
+
+  #updateSiteMenu = () => {
+    // removeElement(this.#siteMenu);
+    //this._filters = generateFilter(this.films);
+    //this.#siteMenu = new SiteMenuView(this._filters);
+    this.#workOnFilters(this._mainContainer);
+    //this.#renderAfterBegin(this._mainContainer, this.#siteMenu.element);
+  }
+
+  #workOnFilters = ()=>{
+    this._newMenu.subscribe(
+      'all',
+      ()=>this.#rerenderFilter('all'),
+    );
+    this._newMenu.subscribe(
+      'watchlist',
+      ()=>this.#rerenderFilter('watchlist'),
+    );
+    this._newMenu.subscribe(
+      'history',
+      ()=>this.#rerenderFilter('history'),
+    );
+    this._newMenu.subscribe(
+      'favorites',
+      ()=>this.#rerenderFilter('favorites'),
+    );
+
+    this.#siteMenu = this._newMenu;
+  };
+
+  #renderSite = (container) => {
+    this.#renderBeforeEnd(
+      document.querySelector('header'),
+      new SiteRatingView().element
+    );
+    this.#renderBeforeEnd(container, this.#siteMenu.element);
+    this.#siteMenu.subscribe(
+      'all',
+      ()=>this.#rerenderFilter('all'),
+    );
+    this.#siteMenu.subscribe(
+      'watchlist',
+      ()=>this.#rerenderFilter('watchlist'),
+    );
+    this.#siteMenu.subscribe(
+      'history',
+      ()=>this.#rerenderFilter('history'),
+    );
+    this.#siteMenu.subscribe(
+      'favorites',
+      ()=>this.#rerenderFilter('favorites'),
+    );
+    // this.#workOnFilters();
+    // this.#renderBeforeEnd(container, this._sortMenu);
+    // this.#renderBeforeEnd(container, new SiteFilmsView().element);
+    // this.#renderFilms(container.querySelector('.films'));
+  };
+
 
   // #handleViewAction = (actionType, updateType, update) => {
   //   switch(actionType) {
@@ -120,7 +201,6 @@ export default class MoviesBoardPresenter {
   //   return filmCard.movie.element;
   // }
 
-  // #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
 
   // #renderAfterBegin = (container, element) => renderElement(container, element, RenderPosition.AFTERBEGIN)
 
@@ -207,56 +287,26 @@ export default class MoviesBoardPresenter {
   //   }
   // };
 
-  // #clearBoard = ()=>{}
 
-  // #rerenderFilter = (newFilter)=>{
-  //   this.#currentFilter = newFilter;
-  //   this.#clearBoard();
-  //   this.#updateSiteMenu();
-  //   this.#renderFilms();
-  // }
-
-  // #workOnFilters = (container)=>{
-  //   const temp = this.#siteMenu;
-  //   const newMenu = new SiteMenuView(
-  //     generateFilter(this.#moviesModel.films),
-  //     this.#currentFilter
-  //   );
-  //   newMenu.subscribe(
+  // #siteFilterSubscribe = (data) => {
+  //   data.subscribe(
   //     'all',
   //     ()=>this.#rerenderFilter('all'),
   //   );
-  //   newMenu.subscribe(
+  //   data.subscribe(
   //     'watchlist',
   //     ()=>this.#rerenderFilter('watchlist'),
   //   );
-  //   newMenu.subscribe(
+  //   data.subscribe(
   //     'history',
   //     ()=>this.#rerenderFilter('history'),
   //   );
-  //   newMenu.subscribe(
+  //   data.subscribe(
   //     'favorites',
   //     ()=>this.#rerenderFilter('favorites'),
   //   );
+  // }
 
-  //   if(temp){
-  //     replaceElement(temp, newMenu.element);
-  //   } else{
-  //     renderElement(container,newMenu.element);
-  //   }
-  //   this.#siteMenu = newMenu;
-  // };
-
-  // #renderSite = (container) => {
-  //   this.#renderBeforeEnd(
-  //     document.querySelector('header'),
-  //     new SiteRatingView().element
-  //   );
-  //   this.#renderBeforeEnd(container, this.#workOnFilters());
-  //   this.#renderBeforeEnd(container, this._sortMenu);
-  //   this.#renderBeforeEnd(container, new SiteFilmsView().element);
-  //   this.#renderFilms(container.querySelector('.films'));
-  // };
 
   // Переключатель карточки фильма
   //  #handleFilmChange = (updatedFilm) => {
@@ -278,13 +328,6 @@ export default class MoviesBoardPresenter {
   //    this.#updateSiteMenu();
   //  }
 
-  //  #updateSiteMenu = () => {
-  //    //removeElement(this.#siteMenu);
-  //    //this._filters = generateFilter(this.films);
-  //    //this.#siteMenu = new SiteMenuView(this._filters);
-  //    this.#workOnFilters(this._mainContainer);
-  //    //this.#renderAfterBegin(this._mainContainer, this.#siteMenu.element);
-  //  }
 
   // #sortFilmCards = (sortType) => {
   //   switch(sortType) {

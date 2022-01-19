@@ -33,16 +33,19 @@ export default class AbstractView {
   removeElement() {
     this.#element = null;
   }
+
   subscribe(name, callback){
     this.#callback[name] = callback;
   }
+
   unsubscribe(name){
-    delete this.#callback[name]
+    delete this.#callback[name];
   }
+
   notify(name, data){
     const callback = this.#callback[name];
-    if(typeof callback === 'funciton'){
+    if(typeof callback === 'function'){
       callback(data);
-    } 
+    }
   }
 }
