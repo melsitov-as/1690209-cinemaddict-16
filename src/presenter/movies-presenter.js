@@ -10,15 +10,13 @@ import { replaceElement, renderElement, RenderPosition, removeElement } from '..
 import { generateFilter } from '../mock/filter.js';
 import MoviePresenter from './movie-presenter.js';
 import { sortByDate, callbackForEachLimited, sortByRating, sortByComments } from '../utils/common.js';
-import { SortType, UpdateType, UserAction } from '../const.js';
+import { SortType, UpdateType, UserAction, FILM_CARDS_COUNT, FILM_CARDS_COUNT_PER_STEP } from '../const.js';
 
-const FILM_CARDS_COUNT = 48;
-const FILM_CARDS_COUNT_PER_STEP = 5;
 
 // const body = document.querySelector('body');
 
 export default class MoviesBoardPresenter {
-
+  #siteFilmsList = null;
   #showMoreButton = new SiteShowMoreView()
   #siteMenu = null;
   #moviesModel = null;
@@ -27,6 +25,7 @@ export default class MoviesBoardPresenter {
   constructor(main, moviesModel) {
     this._mainContainer = main;
 
+    this.#siteFilmsList = new SiteFilmsView();
     this.#moviesModel = moviesModel;
     this._filters = generateFilter(this.films);
 
@@ -42,17 +41,17 @@ export default class MoviesBoardPresenter {
     this._filmCardsDefault = this.films.slice();
 
     this._siteAllFilmsTemplate = new SiteAllFilmsView().element;
-    // this.#moviesModel.addObserver(this.#handleModelEvent);
+    this.#moviesModel.addObserver(this.#handleModelEvent);
   }
 
   get films() {
-    const items = this.#moviesModel.films.filter((item)=> this.#currentFilter === 'all'
+    const items = this.#moviesModel.films.filter((item)=> item && this.#currentFilter === 'all'
         || (
-          item.watched && this.#currentFilter === 'history'
+          item.isWatched && this.#currentFilter === 'history'
         ||
         item.isInFavorites && this.#currentFilter === 'favorites'
         ||
-        item.isInWatchList && this.#currentFilter === 'watchlist'
+        item.isInWatchlist && this.#currentFilter === 'watchlist'
         ));
     //   switch (this.#currentFilter) {
     //     case this.#currentFilter === 'all':
@@ -79,7 +78,6 @@ export default class MoviesBoardPresenter {
   init = () => {
     this.#renderSite(this._mainContainer);
     // this._sortMenu.setSortTypeChangeHandler(this.#handleSortTypeChange);
-    console.log(this.#moviesModel.films);
   }
 
   #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
@@ -90,13 +88,20 @@ export default class MoviesBoardPresenter {
   //   removeElement(this.#siteMenu);
   // }
 
-  #rerenderFilter = (newFilter)=>{
-    this.#currentFilter = newFilter;
+  #updateFilter = () => {
     this._newMenu = new SiteMenuView(
       generateFilter(this.#moviesModel.films),
       this.#currentFilter
     );
     replaceElement(this._newMenu, this.#siteMenu);
+    this.#subscribeOnFilters(this._newMenu);
+    this.#siteMenu = this._newMenu;
+
+  }
+
+  #rerenderFilter = (newFilter)=>{
+    this.#currentFilter = newFilter;
+    this.#updateFilter();
     this.#workOnFilters();
   }
 
@@ -119,10 +124,22 @@ export default class MoviesBoardPresenter {
     );
   }
 
-  #workOnFilters = ()=>{
-    this.#subscribeOnFilters(this._newMenu);
-    this.#siteMenu = this._newMenu;
+  #workOnFilters = ()=> {
+    console.log(this.films);
+    this.#rerenderFilms();
   };
+
+  #rerenderFilms = () => {
+    this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer);
+    this._filmPresentersRegular = new Map();
+    this.#renderAllFilms();
+    this.#clearFilmsList(this._filmPresentersTopRated, this._topRatedFilmsContainer);
+    this._filmPresentersTopRated = new Map();
+    this.#renderFilmItemsTopRated(this._topRatedFilmsContainer, 2, this._filmPresentersTopRated);
+    this.#clearFilmsList(this._filmPresentersMostCommented, this._mostCommentedFilmsContainer);
+    this._filmPresentersMostCommented = new Map();
+    this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
+  }
 
   #rerenderSort = (newSort) => {
     this._currentSortType = newSort;
@@ -134,6 +151,10 @@ export default class MoviesBoardPresenter {
   #workOnSort = () => {
     this.#subscribeOnSort(this._newSort);
     this._sortMenu = this._newSort;
+    console.log(this.films);
+    this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer);
+    this._filmPresentersRegular = new Map();
+    this.#renderAllFilms();
   }
 
   #subscribeOnSort = (sort) => {
@@ -143,11 +164,11 @@ export default class MoviesBoardPresenter {
     );
     sort.subscribe(
       SortType.DATE,
-      () => this.#rerenderSort(SortType.DATE)
+      () => this.#rerenderSort(SortType.DATE),
     );
     sort.subscribe(
       SortType.RATING,
-      () => this.#rerenderSort(SortType.RATING)
+      () => this.#rerenderSort(SortType.RATING),
     );
   }
 
@@ -183,16 +204,32 @@ export default class MoviesBoardPresenter {
     );
   }
 
+  #initializeShowMoreClickHandler = (allFilmsContainer) => {
+    let renderedFilmCardsCount = FILM_CARDS_COUNT_PER_STEP;
+    this.#showMoreButton.setShowMoreHandler(() => {
+      this.films
+        .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
+        .forEach((filmCard) => {
+          this.#renderFilm(filmCard, allFilmsContainer, this._filmPresentersRegular);
+        });
+      renderedFilmCardsCount += FILM_CARDS_COUNT_PER_STEP;
+      if (renderedFilmCardsCount >= this.films.length) {
+        this.#showMoreButton.remove();
+      }
+    });
+  }
+
+
   #renderAllFilmsContainer = (container) => {
     this.#renderBeforeEnd(container, this._siteAllFilmsTemplate);
-    this._allFilmsContainer = container.querySelector('.films-list--regular').querySelector('.films-list__container');
+    this._allFilmsContainer =container.querySelector('.films-list--regular').querySelector('.films-list__container');
   }
 
   #renderAllFilms = () => {
     this.#renderFilmItems(this._allFilmsContainer, FILM_CARDS_COUNT_PER_STEP, this._filmPresentersRegular);
     if (this.films.length > FILM_CARDS_COUNT_PER_STEP) {
       this.#renderBeforeEnd(this._siteAllFilmsTemplate, this.#showMoreButton.element);
-      // this.#initializeShowMoreClickHandler(this._allFilmsContainer);
+      this.#initializeShowMoreClickHandler(this._allFilmsContainer);
     }
   };
 
@@ -217,13 +254,14 @@ export default class MoviesBoardPresenter {
   };
 
   #renderFilms = (container) => {
+    this.#renderBeforeEnd(container, this.#siteFilmsList);
     if (FILM_CARDS_COUNT <= 0) {
       this.#showNoFilmsMessage(container);
     } else {
-      this.#renderAllFilmsContainer(container);
+      this.#renderAllFilmsContainer(container.querySelector('.films'));
       this.#renderAllFilms();
-      this.#renderTopRated(container);
-      this.#renderMostCommented(container);
+      this.#renderTopRated(container.querySelector('.films'));
+      this.#renderMostCommented(container.querySelector('.films'));
     }
   };
 
@@ -247,28 +285,36 @@ export default class MoviesBoardPresenter {
   };
 
 
-  // #handleModelEvent = (updateType, data) => {
-  //   switch(updateType) {
-  //     case UpdateType.PATCH:
+  #handleModelEvent = (updateType, data) => {
+    switch(updateType) {
+      case UpdateType.PATCH:
+        break;
+      case UpdateType.MINOR:
+        if ( this._filmPresentersRegular.get(data.id) !== undefined) {
+          this._filmPresentersRegular.get(data.id).init(data);
+        }
 
-  //       if ( this._filmPresentersRegular.get(data.id) !== undefined) {
-  //         this._filmPresentersRegular.get(data.id).init(data);
-  //       }
+        if ( this._filmPresentersTopRated.get(data.id) !== undefined) {
+          this._filmPresentersTopRated.get(data.id).init(data);
+        }
 
-  //       if ( this._filmPresentersTopRated.get(data.id) !== undefined) {
-  //         this._filmPresentersTopRated.get(data.id).init(data);
-  //       }
+        if ( this._filmPresentersMostCommented.get(data.id) !== undefined) {
+          this._filmPresentersMostCommented.get(data.id).init(data);
+        }
+        this.#rerenderFilms();
+        this.#updateFilter();
+        break;
+      case UpdateType.MAJOR:
+        break;
+    }
+  }
 
-  //       if ( this._filmPresentersMostCommented.get(data.id) !== undefined) {
-  //         this._filmPresentersMostCommented.get(data.id).init(data);
-  //       }
-  //       break;
-  //     case UpdateType.MINOR:
-  //       break;
-  //     case UpdateType.MAJOR:
-  //       break;
-  //   }
-  // }
+  #clearFilmsList = (presenters, container) => {
+    presenters.forEach((presenter) => {
+      container.removeChild(presenter.movie.element);
+    });
+    presenters.forEach((presenter) => presenter.destroy());
+  }
 
 
   // #siteFilterSubscribe = (data) => {
@@ -329,12 +375,6 @@ export default class MoviesBoardPresenter {
   //   }
   // }
 
-  // #clearFilms = (presenters, container) => {
-  //   presenters.forEach((presenter) => {
-  //     container.removeChild(presenter.movie.element);
-  //   });
-  //   presenters.forEach((presenter) => presenter.destroy());
-  // }
 
   // #handleSortTypeChange = (sortType) => {
   //   if (this._currentSortType === sortType) {

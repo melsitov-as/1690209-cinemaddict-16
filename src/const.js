@@ -13,3 +13,6 @@ export const UpdateType = {
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
 };
+
+export const FILM_CARDS_COUNT = 4;
+export const FILM_CARDS_COUNT_PER_STEP = 5;

@@ -99,11 +99,17 @@ export default class MoviePresenter {
     }
   };
 
-  #renderComments = (container, filmCardData) => {
-    if (this._isComments === false) {
+  #checkCommentsContainer= (container, filmCardData) => {
+    if (container) {
       filmCardData.comments.forEach((item) => {
         renderBeforeEnd(container, new SitePopupCommentsView(item).element);
       });
+    }
+  }
+
+  #renderComments = (container, filmCardData) => {
+    if (this._isComments === false) {
+      this.#checkCommentsContainer(container, filmCardData);
       this._isComments = true;
     }
   };
@@ -137,21 +143,21 @@ export default class MoviePresenter {
   #handleWatchlistClick = () => {
     this._changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       Object.assign({}, this.#film, { isInWatchlist: !this.#film.isInWatchlist }));
   }
 
   #handleWatchedClick = () => {
     this._changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       Object.assign({}, this.#film, { isWatched: !this.#film.isWatched }));
   }
 
   #handleFavoriteClick = () => {
     this._changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       Object.assign({}, this.#film, { isInFavorites: !this.#film.isInFavorites }));
   }
 
