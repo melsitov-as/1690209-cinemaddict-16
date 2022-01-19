@@ -26,10 +26,10 @@ export default class SiteMenuView extends AbstractView {
   get template() {
     return createSiteMenuTemplate(this.#filters, this.#currentFilter);
   }
-  
+
   get element(){
-    const result = base.element;
-    
+    const result = super.element;
+
     result.addEventListener('click',(evt)=>{
       const {href} = evt.target;
       if(href){
@@ -37,7 +37,7 @@ export default class SiteMenuView extends AbstractView {
         this.notify(parts[1]);
       }
     });
-    
+
     return result;
   }
 }

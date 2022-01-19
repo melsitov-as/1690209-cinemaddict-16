@@ -6,7 +6,7 @@ import SiteShowMoreView from '../view/site-show-more-view.js';
 import SiteAllFilmsView from '../view/site-all-films-list-view.js';
 import SiteTopRatedFilmsView from '../view/site-top-rated-view.js';
 import SiteMostCommentedFilmsView from '../view/site-most-commented-view.js';
-import { renderElement, RenderPosition, removeElement } from '../render.js';
+import { replaceElement, renderElement, RenderPosition, removeElement } from '../render.js';
 import { generateFilter } from '../mock/filter.js';
 import MoviePresenter from './movie-presenter.js';
 import { sortByDate, callbackForEachLimited, sortByRating, sortByComments } from '../utils/common.js';
@@ -42,209 +42,221 @@ export default class MoviesBoardPresenter {
     this._filmCardsDefault = this.films.slice();
 
     this._siteAllFilmsTemplate = new SiteAllFilmsView().element;
-    this.#moviesModel.addObserver(this.#handleModelEvent);
+    // this.#moviesModel.addObserver(this.#handleModelEvent);
   }
 
   get films() {
-    const items = this.#moviesModel.films.filter((item)=>{
-      return this.#currentFilter('all')
-        || (
-        item.watched && this.#currentFilter === 'history'///....
-        ||
-        item.isFavorit && this.#currentFilter === 'favorites'
-        ||
-        item.isInWatchList && this.#currentFilter === 'watchlist'
-      )
-    });
+    // const items = this.#moviesModel.films.filter((item)=>this.#moviesModel.films,
+    //     || (
+    //       item.watched && this.#currentFilter === 'history'///....
+    //     ||
+    //     item.isFavorites && this.#currentFilter === 'favorites'
+    //     ||
+    //     item.isInWatchList && this.#currentFilter === 'watchlist'
+    //     ));
+    switch (this.#currentFilter) {
+      case this.#currentFilter === 'all':
+        this.#moviesModel.films.filter((item) => item);
+        break;
+      case this.#currentFilter === 'history':
+        this.#moviesModel.films.filter((item) => item.isWatched);
+        break;
+      case this.#currentFilter === 'favorites':
+        this.#moviesModel.films.filter((item) => item.isInFavorites);
+        break;
+      case this.#currentFilter === 'watchlist':
+        this.#moviesModel.films.filter((item) => item.isInWatchlist);
+    }
     switch (this._currentSortType) {
       case SortType.DATE:
-        return items.sort(sortByDate);
+        return this.#moviesModel.films.sort(sortByDate);
       case SortType.RATING:
-        return items.sort(sortByRating);
+        return this.#moviesModel.films.sort(sortByRating);
     }
-    return items;
+    return this.#moviesModel.films;
   }
 
   init = () => {
-    this.#renderSite(this._mainContainer);
-    this._sortMenu.setSortTypeChangeHandler(this.#handleSortTypeChange);
+    // this.#renderSite(this._mainContainer);
+    // this._sortMenu.setSortTypeChangeHandler(this.#handleSortTypeChange);
+    console.log(this.#moviesModel.films);
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
-    switch(actionType) {
-      case UserAction.UPDATE_FILM:
-        this.#moviesModel.updateFilm(updateType, update);
-    }
-  }
+  // #handleViewAction = (actionType, updateType, update) => {
+  //   switch(actionType) {
+  //     case UserAction.UPDATE_FILM:
+  //       this.#moviesModel.updateFilm(updateType, update);
+  //   }
+  // }
 
-  #handleModelEvent = (updateType, data) => {
-    switch(updateType) {
-      case UpdateType.PATCH:
+  // #handleModelEvent = (updateType, data) => {
+  //   switch(updateType) {
+  //     case UpdateType.PATCH:
 
-        if ( this._filmPresentersRegular.get(data.id) !== undefined) {
-          this._filmPresentersRegular.get(data.id).init(data);
-        }
+  //       if ( this._filmPresentersRegular.get(data.id) !== undefined) {
+  //         this._filmPresentersRegular.get(data.id).init(data);
+  //       }
 
-        if ( this._filmPresentersTopRated.get(data.id) !== undefined) {
-          this._filmPresentersTopRated.get(data.id).init(data);
-        }
+  //       if ( this._filmPresentersTopRated.get(data.id) !== undefined) {
+  //         this._filmPresentersTopRated.get(data.id).init(data);
+  //       }
 
-        if ( this._filmPresentersMostCommented.get(data.id) !== undefined) {
-          this._filmPresentersMostCommented.get(data.id).init(data);
-        }
-        break;
-      case UpdateType.MINOR:
-        break;
-      case UpdateType.MAJOR:
-        break;
-    }
-  }
+  //       if ( this._filmPresentersMostCommented.get(data.id) !== undefined) {
+  //         this._filmPresentersMostCommented.get(data.id).init(data);
+  //       }
+  //       break;
+  //     case UpdateType.MINOR:
+  //       break;
+  //     case UpdateType.MAJOR:
+  //       break;
+  //   }
+  // }
 
-  #renderFilm = (film, container, filmPresenters) => {
-    const filmCard = new MoviePresenter(container, this.#handleViewAction);
-    filmCard.init(film);
+  // #renderFilm = (film, container, filmPresenters) => {
+  //   const filmCard = new MoviePresenter(container, this.#handleViewAction);
+  //   filmCard.init(film);
 
-    filmPresenters.set(filmCard.movie.filmCardData.id, filmCard);
-    return filmCard.movie.element;
-  }
+  //   filmPresenters.set(filmCard.movie.filmCardData.id, filmCard);
+  //   return filmCard.movie.element;
+  // }
 
-  #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
+  // #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
 
-  #renderAfterBegin = (container, element) => renderElement(container, element, RenderPosition.AFTERBEGIN)
+  // #renderAfterBegin = (container, element) => renderElement(container, element, RenderPosition.AFTERBEGIN)
 
-  #renderFilmItems = (container, count, filmPresenters) => {
-    callbackForEachLimited (
-      this.films,
-      count,
-      (item)=>{this.#renderFilm(item, container, filmPresenters);},
-    );
-  };
+  // #renderFilmItems = (container, count, filmPresenters) => {
+  //   callbackForEachLimited (
+  //     this.films,
+  //     count,
+  //     (item)=>{this.#renderFilm(item, container, filmPresenters);},
+  //   );
+  // };
 
-  #renderFilmItemsTopRated = (container, count, filmPresenters) => {
-    callbackForEachLimited (
-      this.films.slice().sort(sortByRating),
-      count,
-      (item)=>this.#renderFilm(item, container, filmPresenters)
-    );
-  }
+  // #renderFilmItemsTopRated = (container, count, filmPresenters) => {
+  //   callbackForEachLimited (
+  //     this.films.slice().sort(sortByRating),
+  //     count,
+  //     (item)=>this.#renderFilm(item, container, filmPresenters)
+  //   );
+  // }
 
-  #renderFilmItemsMostCommented = (container, count, filmPresenters) => {
-    callbackForEachLimited (
-      this.films.slice().sort(sortByComments),
-      count,
-      (item)=>this.#renderFilm(item, container, filmPresenters)
-    );
-  }
+  // #renderFilmItemsMostCommented = (container, count, filmPresenters) => {
+  //   callbackForEachLimited (
+  //     this.films.slice().sort(sortByComments),
+  //     count,
+  //     (item)=>this.#renderFilm(item, container, filmPresenters)
+  //   );
+  // }
 
-  #initializeShowMoreClickHandler = (allFilmsContainer) => {
-    let renderedFilmCardsCount = FILM_CARDS_COUNT_PER_STEP;
-    this.#showMoreButton.setShowMoreHandler(() => {
-      this.films
-        .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
-        .forEach((filmCard) => {
-          this.#renderFilm(filmCard, allFilmsContainer, this._filmPresentersRegular);
-        });
-      renderedFilmCardsCount += FILM_CARDS_COUNT_PER_STEP;
-      if (renderedFilmCardsCount >= this.films.length) {
-        this.#showMoreButton.remove();
-      }
-    });
-  }
+  // #initializeShowMoreClickHandler = (allFilmsContainer) => {
+  //   let renderedFilmCardsCount = FILM_CARDS_COUNT_PER_STEP;
+  //   this.#showMoreButton.setShowMoreHandler(() => {
+  //     this.films
+  //       .slice(renderedFilmCardsCount, renderedFilmCardsCount + FILM_CARDS_COUNT_PER_STEP)
+  //       .forEach((filmCard) => {
+  //         this.#renderFilm(filmCard, allFilmsContainer, this._filmPresentersRegular);
+  //       });
+  //     renderedFilmCardsCount += FILM_CARDS_COUNT_PER_STEP;
+  //     if (renderedFilmCardsCount >= this.films.length) {
+  //       this.#showMoreButton.remove();
+  //     }
+  //   });
+  // }
 
-  #renderAllFilmsContainer = (container) => {
-    this.#renderBeforeEnd(container, this._siteAllFilmsTemplate);
-    this._allFilmsContainer = container.querySelector('.films-list--regular').querySelector('.films-list__container');
-  }
+  // #renderAllFilmsContainer = (container) => {
+  //   this.#renderBeforeEnd(container, this._siteAllFilmsTemplate);
+  //   this._allFilmsContainer = container.querySelector('.films-list--regular').querySelector('.films-list__container');
+  // }
 
-  #renderAllFilms = () => {
-    this.#renderFilmItems(this._allFilmsContainer, FILM_CARDS_COUNT_PER_STEP, this._filmPresentersRegular);
-    if (this.films.length > FILM_CARDS_COUNT_PER_STEP) {
-      this.#renderBeforeEnd(this._siteAllFilmsTemplate, this.#showMoreButton.element);
-      this.#initializeShowMoreClickHandler(this._allFilmsContainer);
-    }
-  };
+  // #renderAllFilms = () => {
+  //   this.#renderFilmItems(this._allFilmsContainer, FILM_CARDS_COUNT_PER_STEP, this._filmPresentersRegular);
+  //   if (this.films.length > FILM_CARDS_COUNT_PER_STEP) {
+  //     this.#renderBeforeEnd(this._siteAllFilmsTemplate, this.#showMoreButton.element);
+  //     this.#initializeShowMoreClickHandler(this._allFilmsContainer);
+  //   }
+  // };
 
-  #renderTopRated = (container) => {
-    this.#renderBeforeEnd(container, new SiteTopRatedFilmsView().element);
-    this._topRatedFilmsContainer = container.querySelector('.films-list--top-rated').querySelector('.films-list__container');
-    this.#renderFilmItemsTopRated(this._topRatedFilmsContainer, 2, this._filmPresentersTopRated);
-  }
+  // #renderTopRated = (container) => {
+  //   this.#renderBeforeEnd(container, new SiteTopRatedFilmsView().element);
+  //   this._topRatedFilmsContainer = container.querySelector('.films-list--top-rated').querySelector('.films-list__container');
+  //   this.#renderFilmItemsTopRated(this._topRatedFilmsContainer, 2, this._filmPresentersTopRated);
+  // }
 
 
-  #renderMostCommented = (container) => {
-    this.#renderBeforeEnd(container, new SiteMostCommentedFilmsView().element);
-    this._mostCommentedFilmsContainer = container.querySelector('.films-list--most-commented').querySelector('.films-list__container');
-    this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
-  };
+  // #renderMostCommented = (container) => {
+  //   this.#renderBeforeEnd(container, new SiteMostCommentedFilmsView().element);
+  //   this._mostCommentedFilmsContainer = container.querySelector('.films-list--most-commented').querySelector('.films-list__container');
+  //   this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
+  // };
 
-  #showNoFilmsMessage = (container) => {
-    this.#renderAllFilms(container);
-    const filmsListTitle = container.querySelector('.films-list__title');
-    filmsListTitle.classList.remove('visually-hidden');
-    filmsListTitle.textContent = 'There are no movies in our database';
-  };
+  // #showNoFilmsMessage = (container) => {
+  //   this.#renderAllFilms(container);
+  //   const filmsListTitle = container.querySelector('.films-list__title');
+  //   filmsListTitle.classList.remove('visually-hidden');
+  //   filmsListTitle.textContent = 'There are no movies in our database';
+  // };
 
-  #renderFilms = (container) => {
-    if (FILM_CARDS_COUNT <= 0) {
-      this.#showNoFilmsMessage(container);
-    } else {
-      this.#renderAllFilmsContainer(container);
-      this.#renderAllFilms();
-      this.#renderTopRated(container);
-      this.#renderMostCommented(container);
-    }
-  };
-  
-  #clearBoard = ()=>{}
+  // #renderFilms = (container) => {
+  //   if (FILM_CARDS_COUNT <= 0) {
+  //     this.#showNoFilmsMessage(container);
+  //   } else {
+  //     this.#renderAllFilmsContainer(container);
+  //     this.#renderAllFilms();
+  //     this.#renderTopRated(container);
+  //     this.#renderMostCommented(container);
+  //   }
+  // };
 
-  #rerenderFilter = (newFilter)=>{
-    this.#currentFilter = newFilter; 
-    this.#clearBoard(); 
-    this.#updateSiteMenu()
-    this.#renderFilms();
-  }
-  
-  #workOnFilters = (container)=>{
-    const temp = this.#siteMenu;
-    const newMenu = new SiteMenuView(
-      generateFilter(this.#moviesModel.films),
-      this.#currentFilter
-    );
-    newMenu.subsribe(
-      'all',
-      ()=>#rerenderFilter('all'),
-    );
-    newMenu.subsribe(
-      'watchlist',
-      ()=>#rerenderFilter('watchlist'),
-    );
-    newMenu.subsribe(
-      'history',
-      ()=>#rerenderFilter('history'),
-    );
-    newMenu.subsribe(
-      'favorites',
-      ()=>#rerenderFilter('favorites'),
-    );
-    
-    if(temp){
-      replaceElement(container, temp.element, newMenu.element);
-    } else{
-      render(container,newMenu.element)
-    }
-    this.#siteMenu = newMenu;
-  };
-  
-  #renderSite = (container) => {
-    this.#renderBeforeEnd(
-      document.querySelector('header'),
-      new SiteRatingView().element
-    );
-    this.#renderBeforeEnd(container, this.#workOnFilters());
-    this.#renderBeforeEnd(container, this._sortMenu);
-    this.#renderBeforeEnd(container, new SiteFilmsView().element);
-    this.#renderFilms(container.querySelector('.films'));
-  };
+  // #clearBoard = ()=>{}
+
+  // #rerenderFilter = (newFilter)=>{
+  //   this.#currentFilter = newFilter;
+  //   this.#clearBoard();
+  //   this.#updateSiteMenu();
+  //   this.#renderFilms();
+  // }
+
+  // #workOnFilters = (container)=>{
+  //   const temp = this.#siteMenu;
+  //   const newMenu = new SiteMenuView(
+  //     generateFilter(this.#moviesModel.films),
+  //     this.#currentFilter
+  //   );
+  //   newMenu.subscribe(
+  //     'all',
+  //     ()=>this.#rerenderFilter('all'),
+  //   );
+  //   newMenu.subscribe(
+  //     'watchlist',
+  //     ()=>this.#rerenderFilter('watchlist'),
+  //   );
+  //   newMenu.subscribe(
+  //     'history',
+  //     ()=>this.#rerenderFilter('history'),
+  //   );
+  //   newMenu.subscribe(
+  //     'favorites',
+  //     ()=>this.#rerenderFilter('favorites'),
+  //   );
+
+  //   if(temp){
+  //     replaceElement(temp, newMenu.element);
+  //   } else{
+  //     renderElement(container,newMenu.element);
+  //   }
+  //   this.#siteMenu = newMenu;
+  // };
+
+  // #renderSite = (container) => {
+  //   this.#renderBeforeEnd(
+  //     document.querySelector('header'),
+  //     new SiteRatingView().element
+  //   );
+  //   this.#renderBeforeEnd(container, this.#workOnFilters());
+  //   this.#renderBeforeEnd(container, this._sortMenu);
+  //   this.#renderBeforeEnd(container, new SiteFilmsView().element);
+  //   this.#renderFilms(container.querySelector('.films'));
+  // };
 
   // Переключатель карточки фильма
   //  #handleFilmChange = (updatedFilm) => {
@@ -266,46 +278,46 @@ export default class MoviesBoardPresenter {
   //    this.#updateSiteMenu();
   //  }
 
-   #updateSiteMenu = () => {
-     //removeElement(this.#siteMenu);
-     //this._filters = generateFilter(this.films);
-     //this.#siteMenu = new SiteMenuView(this._filters);
-     this.#workOnFilters(this._mainContainer)
-     //this.#renderAfterBegin(this._mainContainer, this.#siteMenu.element);
-   }
+  //  #updateSiteMenu = () => {
+  //    //removeElement(this.#siteMenu);
+  //    //this._filters = generateFilter(this.films);
+  //    //this.#siteMenu = new SiteMenuView(this._filters);
+  //    this.#workOnFilters(this._mainContainer);
+  //    //this.#renderAfterBegin(this._mainContainer, this.#siteMenu.element);
+  //  }
 
-   // #sortFilmCards = (sortType) => {
-   //   switch(sortType) {
-   //     case SortType.DEFAULT:
-   //       this._currentSortType = sortType.DEFAULT;
-   //       this._filmCards = this._filmCardsDefault;
-   //       break;
-   //     case SortType.DATE:
-   //       this._currentSortType = sortType.DATE;
-   //       this._filmCards = this.films.slice().sort(sortByDate);
-   //       break;
-   //     case SortType.RATING:
-   //       this._currentSortType = sortType.RATING;
-   //       this._filmCards = this.films.slice().sort(sortByRating);
-   //       break;
-   //   }
-   // }
+  // #sortFilmCards = (sortType) => {
+  //   switch(sortType) {
+  //     case SortType.DEFAULT:
+  //       this._currentSortType = sortType.DEFAULT;
+  //       this._filmCards = this._filmCardsDefault;
+  //       break;
+  //     case SortType.DATE:
+  //       this._currentSortType = sortType.DATE;
+  //       this._filmCards = this.films.slice().sort(sortByDate);
+  //       break;
+  //     case SortType.RATING:
+  //       this._currentSortType = sortType.RATING;
+  //       this._filmCards = this.films.slice().sort(sortByRating);
+  //       break;
+  //   }
+  // }
 
-  #clearFilms = (presenters, container) => {
-    presenters.forEach((presenter) => {
-      container.removeChild(presenter.movie.element);
-    });
-    presenters.forEach((presenter) => presenter.destroy());
-  }
+  // #clearFilms = (presenters, container) => {
+  //   presenters.forEach((presenter) => {
+  //     container.removeChild(presenter.movie.element);
+  //   });
+  //   presenters.forEach((presenter) => presenter.destroy());
+  // }
 
-  #handleSortTypeChange = (sortType) => {
-    if (this._currentSortType === sortType) {
-      return;
-    }
-    // this.#sortFilmCards(sortType);
-    this._currentSortType = sortType;
-    this.#clearFilms(this._filmPresentersRegular, this._allFilmsContainer);
-    this._filmPresentersRegular = new Map();
-    this.#renderAllFilms();
-  }
+  // #handleSortTypeChange = (sortType) => {
+  //   if (this._currentSortType === sortType) {
+  //     return;
+  //   }
+  //   // this.#sortFilmCards(sortType);
+  //   this._currentSortType = sortType;
+  //   this.#clearFilms(this._filmPresentersRegular, this._allFilmsContainer);
+  //   this._filmPresentersRegular = new Map();
+  //   this.#renderAllFilms();
+  // }
 }
