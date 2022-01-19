@@ -3,6 +3,7 @@ import { createElement } from '../render.js';
 export default class AbstractView {
   #element = null;
   #callback = {};
+  _callback = {};
   _callbackWatchlist = {};
   _callbackWatched = {};
   _callbackInFavorites = {};
