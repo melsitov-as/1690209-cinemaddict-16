@@ -248,7 +248,7 @@ export default class SitePopupView extends AbstractView {
       return;
     }
     this.#checkAndEraseInputAndEmoji();
-    this.#document.classList.add('hide-overflow');
+    this.#document.classList.remove('hide-overflow');
   }
 
   setFocusOnInput = () => this._input.addEventListener('focus', this.#isFocusOnInput);
