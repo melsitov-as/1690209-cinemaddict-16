@@ -1,6 +1,6 @@
 import SiteFilmCardView from '../view/site-film-card-view.js';
 import SitePopupView from '../view/site-popup-view.js';
-import SitePopupCommentsView from '../view/site-popup-comments-view.js';
+import SitePopupCommentView from '../view/site-popup-comment-view.js';
 import {removeElement, replaceElement, renderBeforeEnd } from '../render.js';
 import { UpdateType, UserAction } from '../const.js';
 
@@ -14,15 +14,13 @@ export default class MoviePresenter {
 
   #moviesModel = null;
 
-  constructor(filmsContainer, changeData, moviesModel) {
+  constructor(filmsContainer, changeData) {
     this.#filmsListContainer = filmsContainer;
     this.#filmPopupContainer = document.body;
 
     this._changeData = changeData;
 
     this._isComments = false;
-
-    this.#moviesModel = moviesModel;
   }
 
   get films() {
@@ -102,7 +100,7 @@ export default class MoviePresenter {
   #checkCommentsContainer= (container, filmCardData) => {
     if (container) {
       filmCardData.comments.forEach((item) => {
-        renderBeforeEnd(container, new SitePopupCommentsView(item).element);
+        renderBeforeEnd(container, new SitePopupCommentView(item).element);
       });
     }
   }
@@ -168,4 +166,5 @@ export default class MoviePresenter {
       this._changeData(Object.assign({}, this.#film, { commentsCount: newCommentsCount}));
     }
   }
+
 }

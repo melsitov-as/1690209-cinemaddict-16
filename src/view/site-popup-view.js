@@ -4,6 +4,7 @@ import AbstractView from './abstract-view.js';
 import { renderBeforeEnd } from '../render.js';
 import dayjs from 'dayjs';
 import { getRandomItem, AUTHORS_LIST, COMMENTS_DATE_FORMAT } from '../mock/film-card-mock.js';
+import SitePopupCommentView from '../view/site-popup-comment-view.js';
 
 const createPopupTemplate = (filmCardData) => {
   const durationInHM = getDuration(filmCardData.totalDuration);
@@ -132,7 +133,7 @@ export default class SitePopupView extends AbstractView {
     this.#document = document;
     this._newComment = new Object();
 
-
+    this._commentsContainer = this.element.querySelector('.film-details__comments-list');
     this._emojiIconContainer = this.element.querySelector('.film-details__add-emoji-label');
     this._input = this.element.querySelector('.film-details__comment-input');
     this._isFocusOnInput = false;
@@ -200,6 +201,9 @@ export default class SitePopupView extends AbstractView {
       return;
     }
     this._callbackChangeComments.keydown();
+    if (this._newComment.emoji && this._newComment.text) {
+      renderBeforeEnd(this._commentsContainer, new SitePopupCommentView(this._newComment).element);
+    }
   }
 
   get template() {

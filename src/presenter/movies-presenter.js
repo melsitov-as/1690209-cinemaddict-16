@@ -6,7 +6,7 @@ import SiteShowMoreView from '../view/site-show-more-view.js';
 import SiteAllFilmsView from '../view/site-all-films-list-view.js';
 import SiteTopRatedFilmsView from '../view/site-top-rated-view.js';
 import SiteMostCommentedFilmsView from '../view/site-most-commented-view.js';
-import { replaceElement, renderElement, RenderPosition, removeElement } from '../render.js';
+import { replaceElement, renderElement, RenderPosition, removeElement, renderBeforeEnd } from '../render.js';
 import { generateFilter } from '../mock/filter.js';
 import MoviePresenter from './movie-presenter.js';
 import { sortByDate, callbackForEachLimited, sortByRating, sortByComments } from '../utils/common.js';
@@ -21,8 +21,10 @@ export default class MoviesBoardPresenter {
   #siteMenu = null;
   #moviesModel = null;
   #currentFilter = 'all';
+  #body = null;
 
   constructor(main, moviesModel) {
+    this.#body = document.body;
     this._mainContainer = main;
 
     this.#siteFilmsList = new SiteFilmsView();
@@ -80,7 +82,7 @@ export default class MoviesBoardPresenter {
     // this._sortMenu.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
 
-  #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
+  // #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
 
   #renderAfterBegin = (container, element) => renderElement(container, element, RenderPosition.AFTERBEGIN)
 
@@ -125,7 +127,6 @@ export default class MoviesBoardPresenter {
   }
 
   #workOnFilters = ()=> {
-    console.log(this.films);
     this.#rerenderFilms();
   };
 
@@ -139,6 +140,7 @@ export default class MoviesBoardPresenter {
     this.#clearFilmsList(this._filmPresentersMostCommented, this._mostCommentedFilmsContainer);
     this._filmPresentersMostCommented = new Map();
     this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
+    this.#body.classList.remove('hide-overflow');
   }
 
   #rerenderSort = (newSort) => {
@@ -151,7 +153,6 @@ export default class MoviesBoardPresenter {
   #workOnSort = () => {
     this.#subscribeOnSort(this._newSort);
     this._sortMenu = this._newSort;
-    console.log(this.films);
     this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer);
     this._filmPresentersRegular = new Map();
     this.#renderAllFilms();
@@ -221,27 +222,27 @@ export default class MoviesBoardPresenter {
 
 
   #renderAllFilmsContainer = (container) => {
-    this.#renderBeforeEnd(container, this._siteAllFilmsTemplate);
+    renderBeforeEnd(container, this._siteAllFilmsTemplate);
     this._allFilmsContainer =container.querySelector('.films-list--regular').querySelector('.films-list__container');
   }
 
   #renderAllFilms = () => {
     this.#renderFilmItems(this._allFilmsContainer, FILM_CARDS_COUNT_PER_STEP, this._filmPresentersRegular);
     if (this.films.length > FILM_CARDS_COUNT_PER_STEP) {
-      this.#renderBeforeEnd(this._siteAllFilmsTemplate, this.#showMoreButton.element);
+      renderBeforeEnd(this._siteAllFilmsTemplate, this.#showMoreButton.element);
       this.#initializeShowMoreClickHandler(this._allFilmsContainer);
     }
   };
 
 
   #renderTopRated = (container) => {
-    this.#renderBeforeEnd(container, new SiteTopRatedFilmsView().element);
+    renderBeforeEnd(container, new SiteTopRatedFilmsView().element);
     this._topRatedFilmsContainer = container.querySelector('.films-list--top-rated').querySelector('.films-list__container');
     this.#renderFilmItemsTopRated(this._topRatedFilmsContainer, 2, this._filmPresentersTopRated);
   }
 
   #renderMostCommented = (container) => {
-    this.#renderBeforeEnd(container, new SiteMostCommentedFilmsView().element);
+    renderBeforeEnd(container, new SiteMostCommentedFilmsView().element);
     this._mostCommentedFilmsContainer = container.querySelector('.films-list--most-commented').querySelector('.films-list__container');
     this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
   };
@@ -254,7 +255,7 @@ export default class MoviesBoardPresenter {
   };
 
   #renderFilms = (container) => {
-    this.#renderBeforeEnd(container, this.#siteFilmsList);
+    renderBeforeEnd(container, this.#siteFilmsList);
     if (FILM_CARDS_COUNT <= 0) {
       this.#showNoFilmsMessage(container);
     } else {
@@ -272,22 +273,10 @@ export default class MoviesBoardPresenter {
     }
   }
 
-  #renderSite = (container) => {
-    this.#renderBeforeEnd(
-      document.querySelector('header'),
-      new SiteRatingView().element
-    );
-    this.#renderBeforeEnd(container, this.#siteMenu.element);
-    this.#subscribeOnFilters(this.#siteMenu);
-    this.#renderBeforeEnd(container, this._sortMenu.element);
-    this.#subscribeOnSort(this._sortMenu);
-    this.#renderFilms(container);
-  };
-
-
   #handleModelEvent = (updateType, data) => {
     switch(updateType) {
       case UpdateType.PATCH:
+        console.log(UpdateType);
         break;
       case UpdateType.MINOR:
         if ( this._filmPresentersRegular.get(data.id) !== undefined) {
@@ -308,6 +297,18 @@ export default class MoviesBoardPresenter {
         break;
     }
   }
+
+  #renderSite = (container) => {
+    renderBeforeEnd(
+      document.querySelector('header'),
+      new SiteRatingView().element
+    );
+    renderBeforeEnd(container, this.#siteMenu.element);
+    this.#subscribeOnFilters(this.#siteMenu);
+    renderBeforeEnd(container, this._sortMenu.element);
+    this.#subscribeOnSort(this._sortMenu);
+    this.#renderFilms(container);
+  };
 
   #clearFilmsList = (presenters, container) => {
     presenters.forEach((presenter) => {

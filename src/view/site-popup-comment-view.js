@@ -15,7 +15,7 @@ const createPopupCommentTemplate = (commentData) => `<li class="film-details__co
   </li>
 `;
 
-export default class SitePopupCommentsView extends AbstractView {
+export default class SitePopupCommentView extends AbstractView {
   #commentData = null;
 
   constructor(commentData) {
