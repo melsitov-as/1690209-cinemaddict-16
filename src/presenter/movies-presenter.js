@@ -22,9 +22,10 @@ export default class MoviesBoardPresenter {
   #moviesModel = null;
   #currentFilter = 'all';
   #body = null;
+  #filmPopupContainer = null;
 
   constructor(main, moviesModel) {
-    this.#body = document.body;
+    this.#filmPopupContainer = document.body;
     this._mainContainer = main;
 
     this.#siteFilmsList = new SiteFilmsView();
@@ -140,7 +141,17 @@ export default class MoviesBoardPresenter {
     this.#clearFilmsList(this._filmPresentersMostCommented, this._mostCommentedFilmsContainer);
     this._filmPresentersMostCommented = new Map();
     this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
-    this.#body.classList.remove('hide-overflow');
+    this.#filmPopupContainer.classList.remove('hide-overflow');
+    console.log(this._renderedPresenterRegular.movie.filmCardData);
+    if (this._isPopupOpened) {
+      this.#rerenderPopup();
+    }
+  }
+
+  #rerenderPopup = () => {
+    this._renderedPresenterRegular.renderPopup(this._renderedPresenterRegular.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterRegular.popup);
+    // вот здесь после renderPopup должны появляться комментарии
+    this._renderedPresenterRegular.removeDoublePopup();
   }
 
   #rerenderSort = (newSort) => {
@@ -173,8 +184,12 @@ export default class MoviesBoardPresenter {
     );
   }
 
+  #checkPopupStatus = (popupStatus) => {
+    this._isPopupOpened = popupStatus;
+  }
+
   #renderFilm = (film, container, filmPresenters) => {
-    const filmCard = new MoviePresenter(container, this.#handleViewAction);
+    const filmCard = new MoviePresenter(container, this.#handleViewAction, this.#checkPopupStatus);
     filmCard.init(film);
 
     filmPresenters.set(filmCard.movie.filmCardData.id, filmCard);
@@ -276,12 +291,23 @@ export default class MoviesBoardPresenter {
   #handleModelEvent = (updateType, data) => {
     switch(updateType) {
       case UpdateType.PATCH:
-        console.log(UpdateType);
+        if ( this._filmPresentersRegular.get(data.id) !== undefined) {
+          this._filmPresentersRegular.get(data.id).init(data);
+        }
+
+        if ( this._filmPresentersTopRated.get(data.id) !== undefined) {
+          this._filmPresentersTopRated.get(data.id).init(data);
+        }
+
+        if ( this._filmPresentersMostCommented.get(data.id) !== undefined) {
+          this._filmPresentersMostCommented.get(data.id).init(data);
+        }
         break;
       case UpdateType.MINOR:
         if ( this._filmPresentersRegular.get(data.id) !== undefined) {
           this._filmPresentersRegular.get(data.id).init(data);
         }
+        this._renderedPresenterRegular = this._filmPresentersRegular.get(data.id);
 
         if ( this._filmPresentersTopRated.get(data.id) !== undefined) {
           this._filmPresentersTopRated.get(data.id).init(data);

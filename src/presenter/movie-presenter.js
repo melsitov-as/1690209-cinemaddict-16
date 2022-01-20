@@ -14,17 +14,15 @@ export default class MoviePresenter {
 
   #moviesModel = null;
 
-  constructor(filmsContainer, changeData) {
+  constructor(filmsContainer, changeData, popupStatus) {
     this.#filmsListContainer = filmsContainer;
     this.#filmPopupContainer = document.body;
 
     this._changeData = changeData;
 
     this._isComments = false;
-  }
 
-  get films() {
-    return this.#moviesModel.movies;
+    this._popupStatus = popupStatus;
   }
 
   init = (film) => {
@@ -39,7 +37,7 @@ export default class MoviePresenter {
 
 
     this.#initializeShowPopupLink(this.#filmView);
-    this.#filmPopupView.setPopupCloseHandler(this.#closePopup);
+    // this.#filmPopupView.setPopupCloseHandler(this.#closePopup);
     // this.#initializePopupCloseButton(prevFilmPopupView);
 
 
@@ -71,6 +69,10 @@ export default class MoviePresenter {
     return this.#filmView;
   }
 
+  get popup() {
+    return this.#filmPopupView;
+  }
+
   destroy() {
     removeElement(this.#filmView);
     removeElement(this.#filmPopupView);
@@ -95,6 +97,7 @@ export default class MoviePresenter {
     if (!this._isFocusOnInput) {
       this.#filmPopupContainer.classList.remove('hide-overflow');
     }
+    this._popupStatus(false);
   };
 
   #checkCommentsContainer= (container, filmCardData) => {
@@ -112,19 +115,21 @@ export default class MoviePresenter {
     }
   };
 
-  #renderPopup = (data) => {
+  renderPopup = (data, container, popupView) => {
     renderBeforeEnd(
-      this.#filmPopupContainer,
-      this.#filmPopupView);
+      container,
+      popupView);
     this.#filmPopupContainer.classList.add('hide-overflow');
     this.#renderComments(
-      document.querySelector('.film-details__comments-list'),
+      popupView.element.querySelector('.film-details__comments-list'),
       data
     );
+    this.#filmPopupView.setPopupCloseHandler(this.#closePopup);
     this.#filmPopupView.setChangeCommentsDataHandler(this.#handleChangeComments);
+    this._popupStatus(true);
   };
 
-  #removeDoublePopup = () => {
+  removeDoublePopup = () => {
     const openedPopups = this.#filmPopupContainer.querySelectorAll('.film-details');
     if (openedPopups.length > 1) {
       removeElement(openedPopups[0]);
@@ -133,8 +138,8 @@ export default class MoviePresenter {
 
   #initializeShowPopupLink = (data) => {
     data.setShowPopupHandler(() => {
-      this.#renderPopup(data.filmCardData);
-      this.#removeDoublePopup();
+      this.renderPopup(data.filmCardData, this.#filmPopupContainer, this.#filmPopupView);
+      this.removeDoublePopup();
     });
   };
 
@@ -163,7 +168,10 @@ export default class MoviePresenter {
     const newCommentsCount = this.#film.commentsCount += 1;
     if (this.#filmPopupView._newComment.emoji && this.#filmPopupView._newComment.text) {
       this.#film.comments.push(this.#filmPopupView._newComment);
-      this._changeData(Object.assign({}, this.#film, { commentsCount: newCommentsCount}));
+      this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.PATCH,
+        Object.assign({}, this.#film, { commentsCount: newCommentsCount}));
     }
   }
 
