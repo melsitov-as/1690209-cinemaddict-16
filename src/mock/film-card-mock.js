@@ -113,6 +113,7 @@ const getCommentDate = () => dayjs().add(
 ).format(COMMENTS_DATE_FORMAT);
 
 const getComment = () => ({
+  id: getRandomPositiveInteger(0, MAX_ID),
   emoji: getRandomItem(EMOJIES_LIST),
   text: getRandomItem(SENTENCES_LIST),
   author: getRandomItem(AUTHORS_LIST),

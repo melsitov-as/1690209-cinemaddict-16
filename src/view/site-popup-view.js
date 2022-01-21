@@ -5,6 +5,7 @@ import { renderBeforeEnd } from '../render.js';
 import dayjs from 'dayjs';
 import { getRandomItem, AUTHORS_LIST, COMMENTS_DATE_FORMAT } from '../mock/film-card-mock.js';
 import SitePopupCommentView from '../view/site-popup-comment-view.js';
+import he from 'he';
 
 const createPopupTemplate = (filmCardData) => {
   const durationInHM = getDuration(filmCardData.totalDuration);
@@ -156,7 +157,7 @@ export default class SitePopupView extends AbstractView {
 
   #inputCallback = (evt) => {
     if (evt) {
-      this._newComment.text = evt.target.value;
+      this._newComment.text = he.encode(evt.target.value);
     }
   }
 

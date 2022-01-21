@@ -8,6 +8,8 @@ export default class AbstractView {
   _callbackWatched = {};
   _callbackInFavorites = {};
   _callbackChangeComments = {};
+  _callbackGetDeletedComment = {};
+  _callbacklDeleteComment = {};
 
   constructor() {
     if (new.target === AbstractView) {

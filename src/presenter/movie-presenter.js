@@ -12,8 +12,6 @@ export default class MoviePresenter {
   #filmsListContainer = null;
   #filmPopupContainer = null;
 
-  #moviesModel = null;
-
   constructor(filmsContainer, changeData, popupStatus) {
     this.#filmsListContainer = filmsContainer;
     this.#filmPopupContainer = document.body;
@@ -73,6 +71,14 @@ export default class MoviePresenter {
     return this.#filmPopupView;
   }
 
+  get isComments() {
+    return this._isComments;
+  }
+
+  set isComments(value) {
+    this._isComments = value;
+  }
+
   destroy() {
     removeElement(this.#filmView);
     removeElement(this.#filmPopupView);
@@ -90,6 +96,8 @@ export default class MoviePresenter {
       replaceElement(this.#filmPopupView, prevFilmPopupViewData);
     }
     this.#renderComments(document.querySelector('.film-details__comments-list'), this.#film);
+    this.#filmPopupView.setPopupCloseHandler(this.#closePopup);
+    this._isComments = true;
   }
 
   #closePopup = () => {
@@ -100,13 +108,20 @@ export default class MoviePresenter {
     this._popupStatus(false);
   };
 
+  #getDeletedComment = (data) => {
+    this._deletedComment = data;
+  }
+
   #checkCommentsContainer= (container, filmCardData) => {
     if (container) {
       filmCardData.comments.forEach((item) => {
-        renderBeforeEnd(container, new SitePopupCommentView(item).element);
+        const newComment = new SitePopupCommentView(item, this.#getDeletedComment);
+        renderBeforeEnd(container, newComment.element);
+        newComment.setDeleteHandler(this.#handleDeleteComment);
       });
     }
   }
+
 
   #renderComments = (container, filmCardData) => {
     if (this._isComments === false) {
@@ -165,6 +180,7 @@ export default class MoviePresenter {
   }
 
   #handleChangeComments = () => {
+    this._isComments = true;
     const newCommentsCount = this.#film.commentsCount += 1;
     if (this.#filmPopupView._newComment.emoji && this.#filmPopupView._newComment.text) {
       this.#film.comments.push(this.#filmPopupView._newComment);
@@ -175,4 +191,18 @@ export default class MoviePresenter {
     }
   }
 
+  #handleDeleteComment = () => {
+    this._isComments = true;
+    this.#film.comments.forEach((item) => {
+      if (item.id === this._deletedComment.commentData.id) {
+        const indexOfCurrentComment = this.#film.comments.indexOf(item);
+        this.#film.comments.splice(indexOfCurrentComment, 1);
+      }
+    });
+    const newCommentsCount = this.#film.commentsCount -= 1;
+    this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      Object.assign({}, this.#film, {commentsCount: newCommentsCount}));
+  }
 }

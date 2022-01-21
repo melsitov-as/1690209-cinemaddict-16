@@ -132,6 +132,7 @@ export default class MoviesBoardPresenter {
   };
 
   #rerenderFilms = () => {
+    this._renderedPresenterRegular.isComments = false;
     this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer);
     this._filmPresentersRegular = new Map();
     this.#renderAllFilms();
@@ -142,16 +143,30 @@ export default class MoviesBoardPresenter {
     this._filmPresentersMostCommented = new Map();
     this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
     this.#filmPopupContainer.classList.remove('hide-overflow');
-    console.log(this._renderedPresenterRegular.movie.filmCardData);
     if (this._isPopupOpened) {
       this.#rerenderPopup();
     }
   }
 
   #rerenderPopup = () => {
-    this._renderedPresenterRegular.renderPopup(this._renderedPresenterRegular.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterRegular.popup);
-    // вот здесь после renderPopup должны появляться комментарии
+    if (this._renderedPresenterRegular && !this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
+      this._renderedPresenterRegular.renderPopup(this._renderedPresenterRegular.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterRegular.popup);
+    } else if (this._renderedPresenterRegular && this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
+      this._renderedPresenterRegular.renderPopup(this._renderedPresenterRegular.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterRegular.popup);
+    } else if (this._renderedPresenterRegular && !this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
+      this._renderedPresenterRegular.renderPopup(this._renderedPresenterRegular.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterRegular.popup);
+    } else if (this._renderedPresenterRegular && this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
+      this._renderedPresenterRegular.renderPopup(this._renderedPresenterRegular.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterRegular.popup);
+    } else if (!this._renderedPresenterRegular && this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
+      this._renderedPresenterTopRated.renderPopup(this._renderedPresenterTopRated.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterTopRated.popup);
+    } else if (!this._renderedPresenterRegular && this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
+      this._renderedPresenterTopRated.renderPopup(this._renderedPresenterTopRated.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterTopRated.popup);
+    } else if (!this._renderedPresenterRegular && !this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
+      this._renderedPresenterMostCommented.renderPopup(this._renderedPresenterMostCommented.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterMostCommented.popup);
+    }
+
     this._renderedPresenterRegular.removeDoublePopup();
+    this._renderedPresenterRegular.isComments = true;
   }
 
   #rerenderSort = (newSort) => {
@@ -312,10 +327,12 @@ export default class MoviesBoardPresenter {
         if ( this._filmPresentersTopRated.get(data.id) !== undefined) {
           this._filmPresentersTopRated.get(data.id).init(data);
         }
+        this._renderedPresenterTopRated = this._filmPresentersTopRated.get(data.id);
 
         if ( this._filmPresentersMostCommented.get(data.id) !== undefined) {
           this._filmPresentersMostCommented.get(data.id).init(data);
         }
+        this._renderedPresenterMostCommented = this._filmPresentersMostCommented.get(data.id);
         this.#rerenderFilms();
         this.#updateFilter();
         break;
