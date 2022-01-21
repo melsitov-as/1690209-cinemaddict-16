@@ -148,21 +148,26 @@ export default class MoviesBoardPresenter {
     }
   }
 
+  #makePopupForRerender = (presenter) => {
+    presenter.renderPopup(presenter.movie.filmCardData, this.#filmPopupContainer, presenter.popup);
+    presenter.removeDoublePopup();
+  }
+
   #rerenderPopup = () => {
     if (this._renderedPresenterRegular && !this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
-      this._renderedPresenterRegular.renderPopup(this._renderedPresenterRegular.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterRegular.popup);
+      this.#makePopupForRerender(this._renderedPresenterRegular);
     } else if (this._renderedPresenterRegular && this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
-      this._renderedPresenterRegular.renderPopup(this._renderedPresenterRegular.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterRegular.popup);
+      this.#makePopupForRerender(this._renderedPresenterRegular);
     } else if (this._renderedPresenterRegular && !this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-      this._renderedPresenterRegular.renderPopup(this._renderedPresenterRegular.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterRegular.popup);
+      this.#makePopupForRerender(this._renderedPresenterRegular);
     } else if (this._renderedPresenterRegular && this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-      this._renderedPresenterRegular.renderPopup(this._renderedPresenterRegular.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterRegular.popup);
+      this.#makePopupForRerender(this._renderedPresenterRegular);
     } else if (!this._renderedPresenterRegular && this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
-      this._renderedPresenterTopRated.renderPopup(this._renderedPresenterTopRated.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterTopRated.popup);
+      this.#makePopupForRerender(this._renderedPresenterTopRated);
     } else if (!this._renderedPresenterRegular && this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-      this._renderedPresenterTopRated.renderPopup(this._renderedPresenterTopRated.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterTopRated.popup);
+      this.#makePopupForRerender(this._renderedPresenterTopRated);
     } else if (!this._renderedPresenterRegular && !this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-      this._renderedPresenterMostCommented.renderPopup(this._renderedPresenterMostCommented.movie.filmCardData, this.#filmPopupContainer, this._renderedPresenterMostCommented.popup);
+      this.#makePopupForRerender(this._renderedPresenterMostCommented);
     }
 
     this._renderedPresenterRegular.removeDoublePopup();
