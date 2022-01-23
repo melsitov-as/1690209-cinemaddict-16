@@ -144,11 +144,8 @@ export default class MoviesBoardPresenter {
     this._filmPresentersMostCommented = new Map();
     this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
     this.#filmPopupContainer.classList.remove('hide-overflow');
-    if (this.#currentPresenter) {
-      if (this._isPopupOpened) {
-        this.#currentPresenter.isComments = true;
-        this.#rerenderPopup();
-      }
+    if (this._isPopupOpened) {
+      this.#rerenderPopup();
     }
   }
 
