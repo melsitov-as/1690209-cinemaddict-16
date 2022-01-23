@@ -52,11 +52,6 @@ export default class MoviePresenter {
       this.#replaceFilmCard(prevFilmView);
     }
 
-    this.#filmPopupView.setWatchlistHandler(this.#handleWatchlistClick);
-    this.#filmPopupView.setWatchedHandler(this.#handleWatchedClick);
-    this.#filmPopupView.setFavoritesHandler(this.#handleFavoriteClick);
-
-
     if (this.#prevFilmPopupView) {
       this.#replacePopup(this.#prevFilmPopupView);
     }
@@ -140,6 +135,9 @@ export default class MoviePresenter {
       data
     );
     this.#filmPopupView.setPopupCloseHandler(this.#closePopup);
+    this.#filmPopupView.setWatchlistHandler(this.#handleWatchlistClick);
+    this.#filmPopupView.setWatchedHandler(this.#handleWatchedClick);
+    this.#filmPopupView.setFavoritesHandler(this.#handleFavoriteClick);
     this.#filmPopupView.setChangeCommentsDataHandler(this.#handleChangeComments);
     this._popupStatus(true);
   };

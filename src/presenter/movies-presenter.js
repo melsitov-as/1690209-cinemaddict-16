@@ -128,11 +128,12 @@ export default class MoviesBoardPresenter {
   }
 
   #workOnFilters = ()=> {
-    this.#rerenderFilms();
+    this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer);
+    this._filmPresentersRegular = new Map();
+    this.#renderAllFilms();
   };
 
   #rerenderFilms = () => {
-    this._renderedPresenterRegular.isComments = false;
     this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer);
     this._filmPresentersRegular = new Map();
     this.#renderAllFilms();
@@ -143,8 +144,11 @@ export default class MoviesBoardPresenter {
     this._filmPresentersMostCommented = new Map();
     this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
     this.#filmPopupContainer.classList.remove('hide-overflow');
-    if (this._isPopupOpened) {
-      this.#rerenderPopup();
+    if (this.#currentPresenter) {
+      if (this._isPopupOpened) {
+        this.#currentPresenter.isComments = true;
+        this.#rerenderPopup();
+      }
     }
   }
 
@@ -332,7 +336,7 @@ export default class MoviesBoardPresenter {
         if ( this._filmPresentersTopRated.get(data.id) !== undefined) {
           this._filmPresentersTopRated.get(data.id).init(data);
         }
-        this._renderedPresenterTopRated = this._filmPresentersTopRated.get(data.id);
+        this._rerenderedPresenterTopRated = this._filmPresentersTopRated.get(data.id);
 
         if ( this._filmPresentersMostCommented.get(data.id) !== undefined) {
           this._filmPresentersMostCommented.get(data.id).init(data);
