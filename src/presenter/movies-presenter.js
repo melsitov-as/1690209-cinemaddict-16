@@ -6,7 +6,7 @@ import SiteShowMoreView from '../view/site-show-more-view.js';
 import SiteAllFilmsView from '../view/site-all-films-list-view.js';
 import SiteTopRatedFilmsView from '../view/site-top-rated-view.js';
 import SiteMostCommentedFilmsView from '../view/site-most-commented-view.js';
-import { replaceElement, renderElement, RenderPosition, removeElement, renderBeforeEnd } from '../render.js';
+import { replaceElement, renderElement, RenderPosition, renderBeforeEnd } from '../render.js';
 import { generateFilter } from '../mock/filter.js';
 import MoviePresenter from './movie-presenter.js';
 import { sortByDate, callbackForEachLimited, sortByRating, sortByComments } from '../utils/common.js';
@@ -206,12 +206,8 @@ export default class MoviesBoardPresenter {
     );
   }
 
-  #checkPopupStatus = (popupStatus) => {
-    this._isPopupOpened = popupStatus;
-  }
-
   #renderFilm = (film, container, filmPresenters) => {
-    const filmCard = new MoviePresenter(container, this.#handleViewAction, this.#checkPopupStatus, this._popupPresenter);
+    const filmCard = new MoviePresenter(container, this.#handleViewAction, this._popupPresenter);
     filmCard.init(film);
 
     filmPresenters.set(filmCard.movie.filmCardData.id, filmCard);
@@ -373,75 +369,4 @@ export default class MoviesBoardPresenter {
     });
     presenters.forEach((presenter) => presenter.destroy());
   }
-
-
-  // #siteFilterSubscribe = (data) => {
-  //   data.subscribe(
-  //     'all',
-  //     ()=>this.#rerenderFilter('all'),
-  //   );
-  //   data.subscribe(
-  //     'watchlist',
-  //     ()=>this.#rerenderFilter('watchlist'),
-  //   );
-  //   data.subscribe(
-  //     'history',
-  //     ()=>this.#rerenderFilter('history'),
-  //   );
-  //   data.subscribe(
-  //     'favorites',
-  //     ()=>this.#rerenderFilter('favorites'),
-  //   );
-  // }
-
-
-  // Переключатель карточки фильма
-  //  #handleFilmChange = (updatedFilm) => {
-  //    this.films= updateItem(this.films, updatedFilm);
-  //    this._filmCardsDefault = updateItem(this._filmCardsDefault, updatedFilm);
-
-  //    if ( this._filmPresentersRegular.get(updatedFilm.id) !== undefined) {
-  //      this._filmPresentersRegular.get(updatedFilm.id).init(updatedFilm);
-  //    }
-
-  //    if ( this._filmPresentersTopRated.get(updatedFilm.id) !== undefined) {
-  //      this._filmPresentersTopRated.get(updatedFilm.id).init(updatedFilm);
-  //    }
-
-  //    if ( this._filmPresentersMostCommented.get(updatedFilm.id) !== undefined) {
-  //      this._filmPresentersMostCommented.get(updatedFilm.id).init(updatedFilm);
-  //    }
-
-  //    this.#updateSiteMenu();
-  //  }
-
-
-  // #sortFilmCards = (sortType) => {
-  //   switch(sortType) {
-  //     case SortType.DEFAULT:
-  //       this._currentSortType = sortType.DEFAULT;
-  //       this._filmCards = this._filmCardsDefault;
-  //       break;
-  //     case SortType.DATE:
-  //       this._currentSortType = sortType.DATE;
-  //       this._filmCards = this.films.slice().sort(sortByDate);
-  //       break;
-  //     case SortType.RATING:
-  //       this._currentSortType = sortType.RATING;
-  //       this._filmCards = this.films.slice().sort(sortByRating);
-  //       break;
-  //   }
-  // }
-
-
-  // #handleSortTypeChange = (sortType) => {
-  //   if (this._currentSortType === sortType) {
-  //     return;
-  //   }
-  //   // this.#sortFilmCards(sortType);
-  //   this._currentSortType = sortType;
-  //   this.#clearFilms(this._filmPresentersRegular, this._allFilmsContainer);
-  //   this._filmPresentersRegular = new Map();
-  //   this.#renderAllFilms();
-  // }
 }

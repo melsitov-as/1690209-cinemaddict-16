@@ -1,6 +1,6 @@
 import SiteFilmCardView from '../view/site-film-card-view.js';
 // import SitePopupView from '../view/site-popup-view.js';
-// import SitePopupCommentView from '../view/site-popup-comment-view.js';
+import SitePopupCommentView from '../view/site-popup-comment-view.js';
 import PopupPresenter from './popup-presenter.js';
 import {removeElement, replaceElement, renderBeforeEnd } from '../render.js';
 import { UpdateType, UserAction } from '../const.js';
@@ -13,15 +13,13 @@ export default class MoviePresenter {
   #filmsListContainer = null;
   #filmPopupContainer = null;
 
-  constructor(filmsContainer, changeData, popupStatus, popupPresenter) {
+  constructor(filmsContainer, changeData, popupPresenter) {
     this.#filmsListContainer = filmsContainer;
     this.#filmPopupContainer = document.body;
 
     this._changeData = changeData;
 
     this._isComments = false;
-
-    this._popupStatus = popupStatus;
 
     this._popupPresenter = popupPresenter;
   }
@@ -87,12 +85,37 @@ export default class MoviePresenter {
 
   #renderPopup = (container, popup) => {
     renderBeforeEnd(container, popup);
+    this.#filmPopupContainer.classList.add('hide-overflow');
+    this.#renderComments(
+      this.#filmPopupContainer.querySelector('.film-details__comments-list'),
+      popup.filmCardData);
+  }
 
+  #renderComments = (container, filmCardData) => {
+    if (this._isComments === false) {
+      this.#checkCommentsContainer(container, filmCardData);
+      this._isComments = true;
+    }
+  };
+
+   #checkCommentsContainer= (container, filmCardData) => {
+     if (container) {
+       filmCardData.comments.forEach((item) => {
+         const newComment = new SitePopupCommentView(item, this.#getDeletedComment);
+         renderBeforeEnd(container, newComment.element);
+         //  this._commentsPresenter.set(newComment.commentData.id, newComment);
+         newComment.setDeleteHandler(this.#handleDeleteComment);
+       });
+     }
+   }
+
+  #getDeletedComment = (data) => {
+    this._deletedComment = data;
   }
 
   #handleShowPopup = () => {
-    const popup = new PopupPresenter(this.#film, this._changeData);
-    popup.init();
+    const popup = new PopupPresenter(this._changeData);
+    popup.init(this.#film);
     this.#renderPopup(this.#filmPopupContainer, popup.popup);
     this.#removeDoublePopup();
     this._popupPresenter.set(popup.popup.filmCardData.id, popup);
@@ -110,7 +133,6 @@ export default class MoviePresenter {
       UserAction.UPDATE_FILM,
       UpdateType.MINOR,
       Object.assign({}, this.#film, { isInWatchlist: !this.#film.isInWatchlist }));
-    console.log(this.#film.isInWatchlist);
   }
 
   #handleWatchedClick = () => {
@@ -125,6 +147,20 @@ export default class MoviePresenter {
       UserAction.UPDATE_FILM,
       UpdateType.MINOR,
       Object.assign({}, this.#film, { isInFavorites: !this.#film.isInFavorites }));
+  }
+
+  #handleDeleteComment = () => {
+    this.#film.comments.forEach((item) => {
+      if (item.id === this._deletedComment.commentData.id) {
+        const indexOfCurrentComment = this.#film.comments.indexOf(item);
+        this.#film.comments.splice(indexOfCurrentComment, 1);
+      }
+    });
+    const newCommentsCount = this.#film.commentsCount -= 1;
+    this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      Object.assign({}, this.#film, {commentsCount: newCommentsCount}));
   }
 
   // #initializeShowPopupLink = (data) => {
@@ -162,23 +198,6 @@ export default class MoviePresenter {
   //   this._deletedComment = data;
   // }
 
-  // #checkCommentsContainer= (container, filmCardData) => {
-  //   if (container) {
-  //     filmCardData.comments.forEach((item) => {
-  //       const newComment = new SitePopupCommentView(item, this.#getDeletedComment);
-  //       renderBeforeEnd(container, newComment.element);
-  //       newComment.setDeleteHandler(this.#handleDeleteComment);
-  //     });
-  //   }
-  // }
-
-
-  // #renderComments = (container, filmCardData) => {
-  //   if (this._isComments === false) {
-  //     this.#checkCommentsContainer(container, filmCardData);
-  //     this._isComments = true;
-  //   }
-  // };
 
   // renderPopup = (data, container, popupView) => {
   //   renderBeforeEnd(

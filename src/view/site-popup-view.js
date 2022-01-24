@@ -150,6 +150,10 @@ export default class SitePopupView extends AbstractView {
     return createPopupTemplate(this.#filmCardData);
   }
 
+  get newComment() {
+    return this._newComment;
+  }
+
   #setInnerHandlers = () => {
     this.setInputCallback();
     this.setChangeEmojiHandler();
