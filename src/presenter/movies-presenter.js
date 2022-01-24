@@ -37,6 +37,7 @@ export default class MoviesBoardPresenter {
     this._filmPresentersRegular = new Map();
     this._filmPresentersTopRated = new Map();
     this._filmPresentersMostCommented = new Map();
+    this._popupPresenter = new Map();
     this._currentSortType = SortType.DEFAULT;
 
     this._sortMenu = new SiteSortView(this._currentSortType);
@@ -143,37 +144,37 @@ export default class MoviesBoardPresenter {
     this.#clearFilmsList(this._filmPresentersMostCommented, this._mostCommentedFilmsContainer);
     this._filmPresentersMostCommented = new Map();
     this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
-    this.#filmPopupContainer.classList.remove('hide-overflow');
-    if (this._isPopupOpened) {
-      this.#rerenderPopup();
-    }
+    // this.#filmPopupContainer.classList.remove('hide-overflow');
+    // if (this._isPopupOpened) {
+    //   this.#rerenderPopup();
+    // }
   }
 
-  #makePopupForRerender = (presenter) => {
-    presenter.renderPopup(presenter.movie.filmCardData, this.#filmPopupContainer, presenter.popup);
-    presenter.removeDoublePopup();
-  }
+  // #makePopupForRerender = (presenter) => {
+  //   presenter.renderPopup(presenter.movie.filmCardData, this.#filmPopupContainer, presenter.popup);
+  //   presenter.removeDoublePopup();
+  // }
 
-  #rerenderPopup = () => {
-    if (this._renderedPresenterRegular && !this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
-      this.#makePopupForRerender(this._renderedPresenterRegular);
-    } else if (this._renderedPresenterRegular && this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
-      this.#makePopupForRerender(this._renderedPresenterRegular);
-    } else if (this._renderedPresenterRegular && !this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-      this.#makePopupForRerender(this._renderedPresenterRegular);
-    } else if (this._renderedPresenterRegular && this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-      this.#makePopupForRerender(this._renderedPresenterRegular);
-    } else if (!this._renderedPresenterRegular && this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
-      this.#makePopupForRerender(this._renderedPresenterTopRated);
-    } else if (!this._renderedPresenterRegular && this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-      this.#makePopupForRerender(this._renderedPresenterTopRated);
-    } else if (!this._renderedPresenterRegular && !this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-      this.#makePopupForRerender(this._renderedPresenterMostCommented);
-    }
+  // #rerenderPopup = () => {
+  //   if (this._renderedPresenterRegular && !this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
+  //     this.#makePopupForRerender(this._renderedPresenterRegular);
+  //   } else if (this._renderedPresenterRegular && this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
+  //     this.#makePopupForRerender(this._renderedPresenterRegular);
+  //   } else if (this._renderedPresenterRegular && !this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
+  //     this.#makePopupForRerender(this._renderedPresenterRegular);
+  //   } else if (this._renderedPresenterRegular && this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
+  //     this.#makePopupForRerender(this._renderedPresenterRegular);
+  //   } else if (!this._renderedPresenterRegular && this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
+  //     this.#makePopupForRerender(this._renderedPresenterTopRated);
+  //   } else if (!this._renderedPresenterRegular && this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
+  //     this.#makePopupForRerender(this._renderedPresenterTopRated);
+  //   } else if (!this._renderedPresenterRegular && !this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
+  //     this.#makePopupForRerender(this._renderedPresenterMostCommented);
+  //   }
 
-    this._renderedPresenterRegular.removeDoublePopup();
-    this._renderedPresenterRegular.isComments = true;
-  }
+  //   this._renderedPresenterRegular.removeDoublePopup();
+  //   this._renderedPresenterRegular.isComments = true;
+  // }
 
   #rerenderSort = (newSort) => {
     this._currentSortType = newSort;
@@ -210,7 +211,7 @@ export default class MoviesBoardPresenter {
   }
 
   #renderFilm = (film, container, filmPresenters) => {
-    const filmCard = new MoviePresenter(container, this.#handleViewAction, this.#checkPopupStatus);
+    const filmCard = new MoviePresenter(container, this.#handleViewAction, this.#checkPopupStatus, this._popupPresenter);
     filmCard.init(film);
 
     filmPresenters.set(filmCard.movie.filmCardData.id, filmCard);
@@ -323,6 +324,10 @@ export default class MoviesBoardPresenter {
         if ( this._filmPresentersMostCommented.get(data.id) !== undefined) {
           this._filmPresentersMostCommented.get(data.id).init(data);
         }
+
+        if (this._popupPresenter.get(data.id) !== undefined) {
+          this._popupPresenter.get(data.id).init(data);
+        }
         break;
       case UpdateType.MINOR:
         if ( this._filmPresentersRegular.get(data.id) !== undefined) {
@@ -339,6 +344,9 @@ export default class MoviesBoardPresenter {
           this._filmPresentersMostCommented.get(data.id).init(data);
         }
         this._renderedPresenterMostCommented = this._filmPresentersMostCommented.get(data.id);
+        if (this._popupPresenter.get(data.id) !== undefined) {
+          this._popupPresenter.get(data.id).init(data);
+        }
         this.#rerenderFilms();
         this.#updateFilter();
         break;

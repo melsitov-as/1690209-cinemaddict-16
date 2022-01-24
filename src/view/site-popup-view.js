@@ -123,14 +123,14 @@ const createPopupTemplate = (filmCardData) => {
 };
 
 export default class SitePopupView extends AbstractView {
-  #filmCard = null;
+  #filmCardData = null;
   #popupCloseButton = null;
   #document = null;
 
   constructor(filmCardData, document) {
     super();
     // this.#filmCardData = filmCardData;
-    this.#filmCard = filmCardData;
+    this.#filmCardData = filmCardData;
     this.#document = document;
     this._newComment = new Object();
 
@@ -140,6 +140,14 @@ export default class SitePopupView extends AbstractView {
     this._isFocusOnInput = false;
 
     this.#setInnerHandlers();
+  }
+
+  get filmCardData() {
+    return this.#filmCardData;
+  }
+
+  get template() {
+    return createPopupTemplate(this.#filmCardData);
   }
 
   #setInnerHandlers = () => {
@@ -205,10 +213,6 @@ export default class SitePopupView extends AbstractView {
     if (this._newComment.emoji && this._newComment.text) {
       renderBeforeEnd(this._commentsContainer, new SitePopupCommentView(this._newComment).element);
     }
-  }
-
-  get template() {
-    return createPopupTemplate(this.#filmCard);
   }
 
   setPopupCloseHandler = (closePopup) => {
