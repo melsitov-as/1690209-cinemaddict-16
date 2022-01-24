@@ -113,19 +113,21 @@ const getCommentDate = () => dayjs().add(
 ).format(COMMENTS_DATE_FORMAT);
 
 const getComment = () => ({
+  id: getRandomPositiveInteger(0, MAX_ID),
   emoji: getRandomItem(EMOJIES_LIST),
   text: getRandomItem(SENTENCES_LIST),
   author: getRandomItem(AUTHORS_LIST),
   date: getCommentDate()
 });
 
-const getCommentsMockData = () => Array.from(
-  {
-    length: getRandomPositiveInteger(0, MAX_COMMENTS),
-  },
-  getComment,
-);
+const getCommentsMockData = () => {
+  const commentsMockData = [];
+  for (let ii = 0; ii < getRandomPositiveInteger(0, MAX_COMMENTS); ii++) {
+    commentsMockData.push(getComment());
+  }
 
+  return commentsMockData;
+};
 
 const getCommentsTitle = (data) =>  (data === 1)?'comment': 'comments';
 

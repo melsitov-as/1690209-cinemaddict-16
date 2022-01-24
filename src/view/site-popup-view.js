@@ -4,6 +4,8 @@ import AbstractView from './abstract-view.js';
 import { renderBeforeEnd } from '../render.js';
 import dayjs from 'dayjs';
 import { getRandomItem, AUTHORS_LIST, COMMENTS_DATE_FORMAT } from '../mock/film-card-mock.js';
+import SitePopupCommentView from '../view/site-popup-comment-view.js';
+import he from 'he';
 
 const createPopupTemplate = (filmCardData) => {
   const durationInHM = getDuration(filmCardData.totalDuration);
@@ -121,23 +123,35 @@ const createPopupTemplate = (filmCardData) => {
 };
 
 export default class SitePopupView extends AbstractView {
-  #filmCard = null;
+  #filmCardData = null;
   #popupCloseButton = null;
   #document = null;
 
   constructor(filmCardData, document) {
     super();
     // this.#filmCardData = filmCardData;
-    this.#filmCard = filmCardData;
+    this.#filmCardData = filmCardData;
     this.#document = document;
     this._newComment = new Object();
 
-
+    this._commentsContainer = this.element.querySelector('.film-details__comments-list');
     this._emojiIconContainer = this.element.querySelector('.film-details__add-emoji-label');
     this._input = this.element.querySelector('.film-details__comment-input');
     this._isFocusOnInput = false;
 
     this.#setInnerHandlers();
+  }
+
+  get filmCardData() {
+    return this.#filmCardData;
+  }
+
+  get template() {
+    return createPopupTemplate(this.#filmCardData);
+  }
+
+  get newComment() {
+    return this._newComment;
   }
 
   #setInnerHandlers = () => {
@@ -155,7 +169,7 @@ export default class SitePopupView extends AbstractView {
 
   #inputCallback = (evt) => {
     if (evt) {
-      this._newComment.text = evt.target.value;
+      this._newComment.text = he.encode(evt.target.value);
     }
   }
 
@@ -200,10 +214,9 @@ export default class SitePopupView extends AbstractView {
       return;
     }
     this._callbackChangeComments.keydown();
-  }
-
-  get template() {
-    return createPopupTemplate(this.#filmCard);
+    if (this._newComment.emoji && this._newComment.text) {
+      renderBeforeEnd(this._commentsContainer, new SitePopupCommentView(this._newComment).element);
+    }
   }
 
   setPopupCloseHandler = (closePopup) => {
@@ -244,7 +257,7 @@ export default class SitePopupView extends AbstractView {
       return;
     }
     this.#checkAndEraseInputAndEmoji();
-    this.#document.classList.add('hide-overflow');
+    this.#document.classList.remove('hide-overflow');
   }
 
   setFocusOnInput = () => this._input.addEventListener('focus', this.#isFocusOnInput);

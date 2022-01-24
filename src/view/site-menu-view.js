@@ -1,11 +1,13 @@
 import AbstractView from './abstract-view.js';
 
-const createSiteMenuTemplate = (filters) => `<nav class="main-navigation">
+const cssClass = (link, current)=> link===current? ' main-navigation__item--active': '';
+
+const createSiteMenuTemplate = (filters, currentFilter) => `<nav class="main-navigation">
     <div class="main-navigation__items">
-      <a href="#all" class="main-navigation__item">All movies</a>
-      <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">${filters.inWatchlist}</span></a>
-      <a href="#history" class="main-navigation__item main-navigation__item--active">History <span class="main-navigation__item-count">${filters.inHistory}</span></a>
-      <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count">${filters.inFavorites}</span></a>
+      <a href="#all" class="main-navigation__item${cssClass('all', currentFilter)}">All movies</a>
+      <a href="#watchlist" class="main-navigation__item${cssClass('watchlist', currentFilter)}">Watchlist <span class="main-navigation__item-count">${filters.inWatchlist}</span></a>
+      <a href="#history" class="main-navigation__item${cssClass('history', currentFilter)}">History <span class="main-navigation__item-count">${filters.inHistory}</span></a>
+      <a href="#favorites" class="main-navigation__item${cssClass('favorites', currentFilter)}">Favorites <span class="main-navigation__item-count">${filters.inFavorites}</span></a>
     </div>
     <a href="#stats" class="main-navigation__additional">Stats</a>
   </nav>`;
@@ -13,13 +15,30 @@ const createSiteMenuTemplate = (filters) => `<nav class="main-navigation">
 
 export default class SiteMenuView extends AbstractView {
   #filters = null;
+  #currentFilter = null;
 
-  constructor(filters) {
+  constructor(filters, currentFilter) {
     super();
     this.#filters = filters;
+    this.#currentFilter = currentFilter;
   }
 
   get template() {
-    return createSiteMenuTemplate(this.#filters);
+    return createSiteMenuTemplate(this.#filters, this.#currentFilter);
+  }
+
+  get element(){
+    const result = super.element;
+
+    result.addEventListener('click',(evt)=>{
+      const {href} = evt.target;
+      if(href){
+        const parts = href.split('#');
+        this.notify(parts[1]);
+      }
+
+    });
+
+    return result;
   }
 }

@@ -1,6 +1,6 @@
 import AbstractView from './abstract-view.js';
 
-const createSiteAllFilmsTemplate = () => `<section class="films-list">
+const createSiteAllFilmsTemplate = () => `<section class="films-list films-list--regular">
     <h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>
 
     <div class="films-list__container">
