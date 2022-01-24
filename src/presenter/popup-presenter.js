@@ -48,16 +48,6 @@ export default class PopupPresenter {
     removeElement(this.#popupView);
   }
 
-  // #replacePopup = (prevPopupViewData) => {
-  //   // this._isComments = false;
-  //   if (this.#filmPopupContainer.contains(prevPopupViewData.element)) {
-  //     replaceElement(this.#popupView, prevPopupViewData);
-  //   }
-  //   // this.#renderComments(document.querySelector('.film-details__comments-list'), this.#film);
-  //   // this.#popupView.setPopupCloseHandler(this.#closePopup);
-  //   // this._isComments = true;
-  // }
-
   #renderComments = (container, filmCardData) => {
     this.#checkCommentsContainer(container, filmCardData);
     this.#isComments = true;
@@ -65,14 +55,10 @@ export default class PopupPresenter {
 
    #checkCommentsContainer= (container, filmCardData) => {
      if (container) {
-
        filmCardData.comments.forEach((item) => {
          const newComment = new SitePopupCommentView(item, this.#getDeletedComment);
          renderBeforeEnd(container, newComment.element);
-         //  this._commentsPresenter.set(newComment.commentData.id, newComment);
          newComment.setDeleteHandler(this.#handleDeleteComment);
-         console.log(filmCardData.commentsCount);
-         console.log(filmCardData.comments);
        });
      }
    }
@@ -109,16 +95,6 @@ export default class PopupPresenter {
       Object.assign({}, this.#film, { isInFavorites: !this.#film.isInFavorites }));
   }
 
-  // #checkCommentsContainer= (container, filmCardData) => {
-  //   if (container) {
-  //     filmCardData.comments.forEach((item) => {
-  //       const newComment = new SitePopupCommentView(item, this.#getDeletedComment);
-  //       renderBeforeEnd(container, newComment.element);
-  //       newComment.setDeleteHandler(this.#handleDeleteComment);
-  //     });
-  //   }
-  // }
-
   #handleChangeComments = () => {
     this._isComments = true;
     const newCommentsCount = this.#film.commentsCount += 1;
@@ -139,7 +115,7 @@ export default class PopupPresenter {
         this.#film.comments.splice(indexOfCurrentComment, 1);
       }
     });
-    const newCommentsCount = this.#film.commentsCount -= 1;
+    const newCommentsCount = this.#film.comments.length;
     this._changeData(
       UserAction.UPDATE_FILM,
       UpdateType.PATCH,

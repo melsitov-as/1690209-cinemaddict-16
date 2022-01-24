@@ -6,14 +6,12 @@ import SiteShowMoreView from '../view/site-show-more-view.js';
 import SiteAllFilmsView from '../view/site-all-films-list-view.js';
 import SiteTopRatedFilmsView from '../view/site-top-rated-view.js';
 import SiteMostCommentedFilmsView from '../view/site-most-commented-view.js';
-import { replaceElement, renderElement, RenderPosition, renderBeforeEnd } from '../render.js';
+import { replaceElement, renderBeforeEnd } from '../render.js';
 import { generateFilter } from '../mock/filter.js';
 import MoviePresenter from './movie-presenter.js';
 import { sortByDate, callbackForEachLimited, sortByRating, sortByComments } from '../utils/common.js';
 import { SortType, UpdateType, UserAction, FILM_CARDS_COUNT, FILM_CARDS_COUNT_PER_STEP } from '../const.js';
 
-
-// const body = document.querySelector('body');
 
 export default class MoviesBoardPresenter {
   #siteFilmsList = null;
@@ -21,7 +19,6 @@ export default class MoviesBoardPresenter {
   #siteMenu = null;
   #moviesModel = null;
   #currentFilter = 'all';
-  #body = null;
   #filmPopupContainer = null;
 
   constructor(main, moviesModel) {
@@ -57,19 +54,6 @@ export default class MoviesBoardPresenter {
         ||
         item.isInWatchlist && this.#currentFilter === 'watchlist'
         ));
-    //   switch (this.#currentFilter) {
-    //     case this.#currentFilter === 'all':
-    //       this.#moviesModel.films.filter((item) => item);
-    //       break;
-    //     case this.#currentFilter === 'history':
-    //       this.#moviesModel.films.filter((item) => item.isWatched);
-    //       break;
-    //     case this.#currentFilter === 'favorites':
-    //       this.#moviesModel.films.filter((item) => item.isInFavorites);
-    //       break;
-    //     case this.#currentFilter === 'watchlist':
-    //       this.#moviesModel.films.filter((item) => item.isInWatchlist);
-    //   }
     switch (this._currentSortType) {
       case SortType.DATE:
         return items.sort(sortByDate);
@@ -81,16 +65,7 @@ export default class MoviesBoardPresenter {
 
   init = () => {
     this.#renderSite(this._mainContainer);
-    // this._sortMenu.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
-
-  // #renderBeforeEnd = (container, element) => renderElement(container, element, RenderPosition.BEFOREEND);
-
-  #renderAfterBegin = (container, element) => renderElement(container, element, RenderPosition.AFTERBEGIN)
-
-  // #clearBoard = ()=>{
-  //   removeElement(this.#siteMenu);
-  // }
 
   #updateFilter = () => {
     this._newMenu = new SiteMenuView(
@@ -144,37 +119,7 @@ export default class MoviesBoardPresenter {
     this.#clearFilmsList(this._filmPresentersMostCommented, this._mostCommentedFilmsContainer);
     this._filmPresentersMostCommented = new Map();
     this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
-    // this.#filmPopupContainer.classList.remove('hide-overflow');
-    // if (this._isPopupOpened) {
-    //   this.#rerenderPopup();
-    // }
   }
-
-  // #makePopupForRerender = (presenter) => {
-  //   presenter.renderPopup(presenter.movie.filmCardData, this.#filmPopupContainer, presenter.popup);
-  //   presenter.removeDoublePopup();
-  // }
-
-  // #rerenderPopup = () => {
-  //   if (this._renderedPresenterRegular && !this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
-  //     this.#makePopupForRerender(this._renderedPresenterRegular);
-  //   } else if (this._renderedPresenterRegular && this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
-  //     this.#makePopupForRerender(this._renderedPresenterRegular);
-  //   } else if (this._renderedPresenterRegular && !this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-  //     this.#makePopupForRerender(this._renderedPresenterRegular);
-  //   } else if (this._renderedPresenterRegular && this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-  //     this.#makePopupForRerender(this._renderedPresenterRegular);
-  //   } else if (!this._renderedPresenterRegular && this._renderedPresenterTopRated && !this._renderedPresenterMostCommented) {
-  //     this.#makePopupForRerender(this._renderedPresenterTopRated);
-  //   } else if (!this._renderedPresenterRegular && this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-  //     this.#makePopupForRerender(this._renderedPresenterTopRated);
-  //   } else if (!this._renderedPresenterRegular && !this._renderedPresenterTopRated && this._renderedPresenterMostCommented) {
-  //     this.#makePopupForRerender(this._renderedPresenterMostCommented);
-  //   }
-
-  //   this._renderedPresenterRegular.removeDoublePopup();
-  //   this._renderedPresenterRegular.isComments = true;
-  // }
 
   #rerenderSort = (newSort) => {
     this._currentSortType = newSort;

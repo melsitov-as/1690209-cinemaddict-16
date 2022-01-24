@@ -9,7 +9,6 @@ export default class MoviePresenter {
   #film = null;
   #filmView = null;
   #filmPopupView = null;
-  #prevFilmPopupView = null;
   #filmsListContainer = null;
   #filmPopupContainer = null;
 
@@ -31,14 +30,6 @@ export default class MoviePresenter {
 
     this.#filmView = new SiteFilmCardView(this.#film);
 
-    // this.#prevFilmPopupView = this.#filmPopupView;
-    // this.#filmPopupView = new SitePopupView(this.#film, this.#filmPopupContainer);
-
-
-    // this.#initializeShowPopupLink(this.#filmView);
-    // this.#filmPopupView.setPopupCloseHandler(this.#closePopup);
-    // this.#initializePopupCloseButton(prevFilmPopupView);
-
     this.#filmView.setShowPopupHandler(this.#handleShowPopup);
     this.#filmView.setWatchlistHandler(this.#handleWatchlistClick);
     this.#filmView.setWatchedHandler(this.#handleWatchedClick);
@@ -52,25 +43,12 @@ export default class MoviePresenter {
     if (prevFilmView) {
       this.#replaceFilmCard(prevFilmView);
     }
-
-    // if (this.#prevFilmPopupView) {
-    //   this.#replacePopup(this.#prevFilmPopupView);
-    // }
   }
 
 
   get movie() {
     return this.#filmView;
   }
-
-  // get popup() {
-  //   return this.#filmPopupView;
-  // }
-
-
-  // set isComments(value) {
-  //   this._isComments = value;
-  // }
 
   destroy() {
     removeElement(this.#filmView);
@@ -162,84 +140,4 @@ export default class MoviePresenter {
       UpdateType.PATCH,
       Object.assign({}, this.#film, {commentsCount: newCommentsCount}));
   }
-
-  // #initializeShowPopupLink = (data) => {
-  //   data.setShowPopupContainer(() => {
-  //     this.#renderPopup(this.#filmPopupContainer, new PopupPresenter);
-  //   });
-
-
-  // #initializeShowPopupLink = (data) => {
-  //   data.setShowPopupHandler(() => {
-  //     this.renderPopup(data.filmCardData, this.#filmPopupContainer, this.#filmPopupView);
-  //     this.removeDoublePopup();
-  //   });
-  // };
-
-  // #replacePopup = (prevFilmPopupViewData) => {
-  //   this._isComments = false;
-  //   if (this.#filmPopupContainer.contains(prevFilmPopupViewData.element)) {
-  //     replaceElement(this.#filmPopupView, prevFilmPopupViewData);
-  //   }
-  //   this.#renderComments(document.querySelector('.film-details__comments-list'), this.#film);
-  //   this.#filmPopupView.setPopupCloseHandler(this.#closePopup);
-  //   this._isComments = true;
-  // }
-
-  // #closePopup = () => {
-  //   removeElement(this.#filmPopupView);
-  //   if (!this._isFocusOnInput) {
-  //     this.#filmPopupContainer.classList.remove('hide-overflow');
-  //   }
-  //   this._popupStatus(false);
-  // };
-
-  // #getDeletedComment = (data) => {
-  //   this._deletedComment = data;
-  // }
-
-
-  // renderPopup = (data, container, popupView) => {
-  //   renderBeforeEnd(
-  //     container,
-  //     popupView);
-  //   this.#filmPopupContainer.classList.add('hide-overflow');
-  //   this.#renderComments(
-  //     popupView.element.querySelector('.film-details__comments-list'),
-  //     data
-  //   );
-  //   this.#filmPopupView.setPopupCloseHandler(this.#closePopup);
-  //   this.#filmPopupView.setWatchlistHandler(this.#handleWatchlistClick);
-  //   this.#filmPopupView.setWatchedHandler(this.#handleWatchedClick);
-  //   this.#filmPopupView.setFavoritesHandler(this.#handleFavoriteClick);
-  //   this.#filmPopupView.setChangeCommentsDataHandler(this.#handleChangeComments);
-  //   this._popupStatus(true);
-  // };
-
-  // #handleChangeComments = () => {
-  //   this._isComments = true;
-  //   const newCommentsCount = this.#film.commentsCount += 1;
-  //   if (this.#filmPopupView._newComment.emoji && this.#filmPopupView._newComment.text) {
-  //     this.#film.comments.push(this.#filmPopupView._newComment);
-  //     this._changeData(
-  //       UserAction.UPDATE_FILM,
-  //       UpdateType.PATCH,
-  //       Object.assign({}, this.#film, { commentsCount: newCommentsCount}));
-  //   }
-  // }
-
-  // #handleDeleteComment = () => {
-  //   this._isComments = true;
-  //   this.#film.comments.forEach((item) => {
-  //     if (item.id === this._deletedComment.commentData.id) {
-  //       const indexOfCurrentComment = this.#film.comments.indexOf(item);
-  //       this.#film.comments.splice(indexOfCurrentComment, 1);
-  //     }
-  //   });
-  //   const newCommentsCount = this.#film.commentsCount -= 1;
-  //   this._changeData(
-  //     UserAction.UPDATE_FILM,
-  //     UpdateType.PATCH,
-  //     Object.assign({}, this.#film, {commentsCount: newCommentsCount}));
-  // }
 }
