@@ -1,4 +1,4 @@
-import { getDuration } from './common.js';
+import { getDurationInHandM } from './common.js';
 
 const allGenres = [];
 let drama = 0;
@@ -17,7 +17,7 @@ const getAllFilmsWatched = (data) => {
 const getTotalDuration =(data) => {
   let allTotalDuration = 0;
   data.forEach((item) => {allTotalDuration += item.totalDuration;});
-  const durationInHM = getDuration(allTotalDuration);
+  const durationInHM = getDurationInHandM(allTotalDuration);
 
   return durationInHM;
 };
@@ -86,9 +86,11 @@ export const getTopGenre = (data) => {
 
 export const getStatistics = (data) => {
   countEachGenre(data);
+  const totalDuration = getTotalDuration(data);
   return {
     allFilmsWatched: getAllFilmsWatched(data),
-    totalDuration: getTotalDuration(data),
+    totalDurationH: totalDuration.hours,
+    totalDurationM: totalDuration.minutes,
     topGenre: getTopGenre(data),
     drama: drama,
     mystery: mystery,

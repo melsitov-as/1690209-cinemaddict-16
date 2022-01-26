@@ -10,9 +10,8 @@ import { replaceElement, renderBeforeEnd } from '../render.js';
 import { generateFilter } from '../mock/filter.js';
 import MoviePresenter from './movie-presenter.js';
 import { sortByDate, callbackForEachLimited, sortByRating, sortByComments } from '../utils/common.js';
-import { SortType, UpdateType, UserAction, FILM_CARDS_COUNT, FILM_CARDS_COUNT_PER_STEP, BAR_HEIGHT } from '../const.js';
-import StatisticsView from '../view/statistics-view.js';
-import { getStatistics } from '../utils/statistics.js';
+import { SortType, UpdateType, UserAction, FILM_CARDS_COUNT, FILM_CARDS_COUNT_PER_STEP } from '../const.js';
+import StatisticsChartPresenter from './statistics-chart-presenter.js';
 
 
 export default class MoviesBoardPresenter {
@@ -22,8 +21,6 @@ export default class MoviesBoardPresenter {
   #moviesModel = null;
   #currentFilter = 'all';
   #filmPopupContainer = null;
-  #statistics = null;
-  #statisticsAndChart = null;
 
   constructor(main, moviesModel) {
     this.#filmPopupContainer = document.body;
@@ -46,9 +43,6 @@ export default class MoviesBoardPresenter {
     this._filmCardsDefault = this.films.slice();
 
     this._siteAllFilmsTemplate = new SiteAllFilmsView().element;
-
-    this.#statistics = getStatistics(this.films);
-    this.#statisticsAndChart = new StatisticsView(BAR_HEIGHT, this.#statistics);
 
     this.#moviesModel.addObserver(this.#handleModelEvent);
   }
@@ -73,6 +67,7 @@ export default class MoviesBoardPresenter {
 
   init = () => {
     this.#renderSite(this._mainContainer);
+    this.#addStatisticsChart(this._mainContainer, this.films);
   }
 
   #updateFilter = () => {
@@ -304,10 +299,6 @@ export default class MoviesBoardPresenter {
     }
   }
 
-  #getStatistics = (data) => {
-    this.#statistics = getStatistics(data);
-  }
-
   #renderSite = (container) => {
     renderBeforeEnd(
       document.querySelector('header'),
@@ -318,8 +309,12 @@ export default class MoviesBoardPresenter {
     renderBeforeEnd(container, this._sortMenu.element);
     this.#subscribeOnSort(this._sortMenu);
     this.#renderFilms(container);
-    renderBeforeEnd(container, this.#statisticsAndChart);
   };
+
+  #addStatisticsChart = (container, moviesModel) => {
+    const statisticsChart = new StatisticsChartPresenter(container, moviesModel);
+    statisticsChart.init();
+  }
 
   #clearFilmsList = (presenters, container) => {
     presenters.forEach((presenter) => {

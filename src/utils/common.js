@@ -30,6 +30,11 @@ export const getDuration = (data) => {
   }
 };
 
+export const getDurationInHandM = (data) => ({
+  hours: Math.floor(data / 60),
+  minutes: data % 60,
+});
+
 const getStringOrEmpty = (flag, value)=>flag?value:'';
 
 const getCardSelector = (flag)=>getStringOrEmpty(flag,CSS_SELECTOR_CARD_CONTROL_ACTIVE);

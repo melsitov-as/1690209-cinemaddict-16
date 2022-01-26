@@ -8,13 +8,13 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 // import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
 
-const renderFilmsChart = (statisticCtx) => new Chart(statisticCtx, {
+const renderFilmsChart = (statistics, statisticCtx) => new Chart(statisticCtx, {
   plugins: [ChartDataLabels],
   type: 'horizontalBar',
   data: {
     labels: ['Drama', 'Mystery', 'Comedy', 'Cartoon', 'Western', 'Musical'],
     datasets: [{
-      data: [11, 8, 7, 4, 3, 5],
+      data: [statistics.drama, statistics.mystery, statistics.comedy, statistics.cartoon, statistics.western, statistics.musical],
       backgroundColor: '#ffe800',
       hoverBackgroundColor: '#ffe800',
       anchor: 'start',
@@ -66,9 +66,7 @@ const renderFilmsChart = (statisticCtx) => new Chart(statisticCtx, {
   },
 });
 
-const createStatisticsTemplate = (statistics) => {
-  console.log(statistics);
-  return `<section class="statistic">
+const createStatisticsTemplate = (statistics) => `<section class="statistic">
     <p class="statistic__rank">
       Your rank
       <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
@@ -101,11 +99,11 @@ const createStatisticsTemplate = (statistics) => {
       </li>
       <li class="statistic__text-item">
         <h4 class="statistic__item-title">Total duration</h4>
-        <p class="statistic__item-text">69 <span class="statistic__item-description">h</span> 41 <span class="statistic__item-description">m</span></p>
+        <p class="statistic__item-text">${statistics.totalDurationH} <span class="statistic__item-description">h</span> ${statistics.totalDurationM} <span class="statistic__item-description">m</span></p>
       </li>
       <li class="statistic__text-item">
         <h4 class="statistic__item-title">Top genre</h4>
-        <p class="statistic__item-text">Drama</p>
+        <p class="statistic__item-text">${statistics.topGenre}</p>
       </li>
     </ul>
 
@@ -114,33 +112,40 @@ const createStatisticsTemplate = (statistics) => {
     </div>
 
   </section>`;
-};
 
 
 export default class StatisticsView extends AbstractView {
-  #films = null;
-  #filmsChart = null;
   #barHeight = null;
   #statisticCtx = null;
+  #getCurrentInterval = null
 
-  constructor(barHeight, statistics) {
+  constructor(barHeight, statistics, getCurrentInterval) {
     super();
     this.#barHeight = barHeight;
-    this.#statisticCtx = this.element.querySelector('.statistic__chart');
     this._statistics = statistics;
+    this.#getCurrentInterval = getCurrentInterval;
 
-
-    this.#statisticCtx.height = this.#barHeight * 6;
-    this.#setFilmsChart(this.#statisticCtx);
-
-    console.log(this._statistics);
   }
 
   get template() {
     return createStatisticsTemplate(this._statistics);
   }
 
-  #setFilmsChart = (statisticCtx) => {
-    this.#filmsChart = renderFilmsChart(statisticCtx);
+  #intervalHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+    this.#getCurrentInterval(evt.target);
+  }
+
+  setIntervalHandler = (callback) => {
+    this._callback.click = callback;
+    const inputs = this.element.querySelectorAll('.statistic__filters-input');
+    inputs.forEach((input) => input.addEventListener('click', this.#intervalHandler));
+  }
+
+  setFilmsChart = () => {
+    this.#statisticCtx = this.element.querySelector('.statistic__chart');
+    this.#statisticCtx.height = this.#barHeight * 6;
+    renderFilmsChart(this._statistics, this.#statisticCtx);
   }
 }
