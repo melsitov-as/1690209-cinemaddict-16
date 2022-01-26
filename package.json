@@ -22,7 +22,10 @@
     "webpack-cli": "4.9.1",
     "webpack-dev-server": "4.4.0",
     "dayjs": "1.10.7",
-    "he": "1.2.0"
+    "he": "1.2.0",
+    "flatpickr": "4.6.9",
+    "chart.js": "2.9.4",
+    "chartjs-plugin-datalabels": "0.7.0"
   },
   "engines": {
     "node": "16"
