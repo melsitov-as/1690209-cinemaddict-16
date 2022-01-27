@@ -6,11 +6,12 @@ import SiteShowMoreView from '../view/site-show-more-view.js';
 import SiteAllFilmsView from '../view/site-all-films-list-view.js';
 import SiteTopRatedFilmsView from '../view/site-top-rated-view.js';
 import SiteMostCommentedFilmsView from '../view/site-most-commented-view.js';
-import { replaceElement, renderBeforeEnd } from '../render.js';
+import { replaceElement, renderBeforeEnd, removeElement } from '../render.js';
 import { generateFilter } from '../mock/filter.js';
 import MoviePresenter from './movie-presenter.js';
 import { sortByDate, callbackForEachLimited, sortByRating, sortByComments } from '../utils/common.js';
 import { SortType, UpdateType, UserAction, FILM_CARDS_COUNT, FILM_CARDS_COUNT_PER_STEP } from '../const.js';
+import StatisticsChartPresenter from './statistics-chart-presenter.js';
 
 
 export default class MoviesBoardPresenter {
@@ -20,6 +21,7 @@ export default class MoviesBoardPresenter {
   #moviesModel = null;
   #currentFilter = 'all';
   #filmPopupContainer = null;
+  #statisticsChart = null;
 
   constructor(main, moviesModel) {
     this.#filmPopupContainer = document.body;
@@ -29,7 +31,7 @@ export default class MoviesBoardPresenter {
     this.#moviesModel = moviesModel;
     this._filters = generateFilter(this.films);
 
-    this.#siteMenu = new SiteMenuView(this._filters, this.#currentFilter);
+    this.#siteMenu = new SiteMenuView(this._filters, this.#currentFilter, this._isStatsActive);
 
     this._filmPresentersRegular = new Map();
     this._filmPresentersTopRated = new Map();
@@ -42,6 +44,12 @@ export default class MoviesBoardPresenter {
     this._filmCardsDefault = this.films.slice();
 
     this._siteAllFilmsTemplate = new SiteAllFilmsView().element;
+
+    this._isStatsRendered = false;
+    this._isFilmsRendered = false;
+
+    this._isStatsActive = 'not-active';
+
     this.#moviesModel.addObserver(this.#handleModelEvent);
   }
 
@@ -53,6 +61,8 @@ export default class MoviesBoardPresenter {
         item.isInFavorites && this.#currentFilter === 'favorites'
         ||
         item.isInWatchlist && this.#currentFilter === 'watchlist'
+        ||
+        item && this.#currentFilter === 'stats'
         ));
     switch (this._currentSortType) {
       case SortType.DATE:
@@ -65,23 +75,26 @@ export default class MoviesBoardPresenter {
 
   init = () => {
     this.#renderSite(this._mainContainer);
+    // this.#addStatisticsChart(this._mainContainer, this.films);
   }
 
   #updateFilter = () => {
     this._newMenu = new SiteMenuView(
       generateFilter(this.#moviesModel.films),
-      this.#currentFilter
+      this.#currentFilter,
+      this._isStatsActive
     );
     replaceElement(this._newMenu, this.#siteMenu);
     this.#subscribeOnFilters(this._newMenu);
     this.#siteMenu = this._newMenu;
-
+    this._newMenu.setShowStatsHandler(this.#showStats);
   }
 
   #rerenderFilter = (newFilter)=>{
     this.#currentFilter = newFilter;
     this.#updateFilter();
     this.#workOnFilters();
+    this.#siteMenu.setShowStatsHandler(this.#showStats);
   }
 
   #subscribeOnFilters = (filter) => {
@@ -104,21 +117,46 @@ export default class MoviesBoardPresenter {
   }
 
   #workOnFilters = ()=> {
-    this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer);
-    this._filmPresentersRegular = new Map();
-    this.#renderAllFilms();
-  };
+    if (this._isFilmsRendered && !this._isStatsRendered) {
+      this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer.element.querySelector('.films-list__container'));
+      removeElement(this.#showMoreButton);
+      this.#clearFilmsList(this._filmPresentersTopRated, this._topRatedFilmsContainer.element.querySelector('.films-list__container'));
+      this.#clearFilmsList(this._filmPresentersMostCommented, this._mostCommentedFilmsContainer.element.querySelector('.films-list__container'));
+      this._filmPresentersRegular = new Map();
+      this._filmPresentersTopRated = new Map();
+      this._filmPresentersMostCommented = new Map();
+      this.#renderAllFilms();
+      this.#renderFilmItemsTopRated(this._topRatedFilmsContainer.element.querySelector('.films-list__container'), 2, this._filmPresentersTopRated);
+      this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer.element.querySelector('.films-list__container'), 2, this._filmPresentersMostCommented);
+      this._isStatsRendered = false;
+      this._isFilmsRendered = true;
+    }
+    if (!this._isFilmsRendered && this._isStatsRendered) {
+      this.#statisticsChart.destroy();
+      this._isStatsRendered = false;
+      this._isFilmsRendered = true;
+      this.#renderFilms(this._mainContainer);
+      this._isStatsActive = 'no-active';
+      this.#updateFilter();
+    }
+
+  }
+
 
   #rerenderFilms = () => {
-    this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer);
-    this._filmPresentersRegular = new Map();
-    this.#renderAllFilms();
-    this.#clearFilmsList(this._filmPresentersTopRated, this._topRatedFilmsContainer);
-    this._filmPresentersTopRated = new Map();
-    this.#renderFilmItemsTopRated(this._topRatedFilmsContainer, 2, this._filmPresentersTopRated);
-    this.#clearFilmsList(this._filmPresentersMostCommented, this._mostCommentedFilmsContainer);
-    this._filmPresentersMostCommented = new Map();
-    this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
+    if (this._isFilmsRendered && !this._isStatsRendered) {
+      this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer.element.querySelector('.films-list__container'));
+      removeElement(this.#showMoreButton);
+      this.#clearFilmsList(this._filmPresentersTopRated, this._topRatedFilmsContainer.element.querySelector('.films-list__container'));
+      this.#clearFilmsList(this._filmPresentersMostCommented, this._mostCommentedFilmsContainer.element.querySelector('.films-list__container'));
+      this._filmPresentersRegular = new Map();
+      this._filmPresentersTopRated = new Map();
+      this._filmPresentersMostCommented = new Map();
+      this.#renderAllFilms();
+      this.#renderFilmItemsTopRated(this._topRatedFilmsContainer.element.querySelector('.films-list__container'), 2, this._filmPresentersTopRated);
+      this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer.element.querySelector('.films-list__container'), 2, this._filmPresentersMostCommented);
+      this._isFilmsRendered = true;
+    }
   }
 
   #rerenderSort = (newSort) => {
@@ -131,7 +169,7 @@ export default class MoviesBoardPresenter {
   #workOnSort = () => {
     this.#subscribeOnSort(this._newSort);
     this._sortMenu = this._newSort;
-    this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer);
+    this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer.element.querySelector('.films-list__container'));
     this._filmPresentersRegular = new Map();
     this.#renderAllFilms();
   }
@@ -193,36 +231,36 @@ export default class MoviesBoardPresenter {
         });
       renderedFilmCardsCount += FILM_CARDS_COUNT_PER_STEP;
       if (renderedFilmCardsCount >= this.films.length) {
-        this.#showMoreButton.remove();
+        removeElement(this.#showMoreButton);
       }
     });
   }
 
 
   #renderAllFilmsContainer = (container) => {
-    renderBeforeEnd(container, this._siteAllFilmsTemplate);
-    this._allFilmsContainer =container.querySelector('.films-list--regular').querySelector('.films-list__container');
+    this._allFilmsContainer = new SiteAllFilmsView();
+    renderBeforeEnd(container, this._allFilmsContainer);
   }
 
   #renderAllFilms = () => {
-    this.#renderFilmItems(this._allFilmsContainer, FILM_CARDS_COUNT_PER_STEP, this._filmPresentersRegular);
+    this.#renderFilmItems(this._allFilmsContainer.element.querySelector('.films-list__container'), FILM_CARDS_COUNT_PER_STEP, this._filmPresentersRegular);
     if (this.films.length > FILM_CARDS_COUNT_PER_STEP) {
-      renderBeforeEnd(this._siteAllFilmsTemplate, this.#showMoreButton.element);
-      this.#initializeShowMoreClickHandler(this._allFilmsContainer);
+      renderBeforeEnd(this._allFilmsContainer.element, this.#showMoreButton.element);
+      this.#initializeShowMoreClickHandler(this._allFilmsContainer.element.querySelector('.films-list__container'));
     }
   };
 
 
   #renderTopRated = (container) => {
-    renderBeforeEnd(container, new SiteTopRatedFilmsView().element);
-    this._topRatedFilmsContainer = container.querySelector('.films-list--top-rated').querySelector('.films-list__container');
-    this.#renderFilmItemsTopRated(this._topRatedFilmsContainer, 2, this._filmPresentersTopRated);
+    this._topRatedFilmsContainer = new SiteTopRatedFilmsView();
+    renderBeforeEnd(container,this._topRatedFilmsContainer);
+    this.#renderFilmItemsTopRated(this._topRatedFilmsContainer.element.querySelector('.films-list__container'), 2, this._filmPresentersTopRated);
   }
 
   #renderMostCommented = (container) => {
-    renderBeforeEnd(container, new SiteMostCommentedFilmsView().element);
-    this._mostCommentedFilmsContainer = container.querySelector('.films-list--most-commented').querySelector('.films-list__container');
-    this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer, 2, this._filmPresentersMostCommented);
+    this._mostCommentedFilmsContainer = new SiteMostCommentedFilmsView();
+    renderBeforeEnd(container, this._mostCommentedFilmsContainer);
+    this.#renderFilmItemsMostCommented(this._mostCommentedFilmsContainer.element.querySelector('.films-list__container'), 2, this._filmPresentersMostCommented);
   };
 
   #showNoFilmsMessage = (container) => {
@@ -302,16 +340,45 @@ export default class MoviesBoardPresenter {
       new SiteRatingView().element
     );
     renderBeforeEnd(container, this.#siteMenu.element);
+    this.#siteMenu.setShowStatsHandler(this.#showStats);
     this.#subscribeOnFilters(this.#siteMenu);
     renderBeforeEnd(container, this._sortMenu.element);
     this.#subscribeOnSort(this._sortMenu);
     this.#renderFilms(container);
+    this._isFilmsRendered = true;
   };
+
+
+  #addStatisticsChart = (container, moviesModel) => {
+    this.#statisticsChart = new StatisticsChartPresenter(container, moviesModel);
+    this.#statisticsChart.init();
+  }
 
   #clearFilmsList = (presenters, container) => {
     presenters.forEach((presenter) => {
-      container.removeChild(presenter.movie.element);
+      if ((presenter.movie.element).parentElement === container) {
+        container.removeChild(presenter.movie.element);
+      }
     });
     presenters.forEach((presenter) => presenter.destroy());
+  }
+
+  #showStats = () => {
+    if (!this._isStatsRendered && this._isFilmsRendered) {
+      {this.#clearFilmsList(this._filmPresentersRegular, this._allFilmsContainer.element.querySelector('.films-list__container'));}
+      removeElement(this._allFilmsContainer);
+      removeElement(this.#showMoreButton);
+      removeElement(this._topRatedFilmsContainer);
+      removeElement(this._mostCommentedFilmsContainer);
+    }
+    this._isStatsActive = 'active';
+    this.#currentFilter = 'stats';
+    this.#updateFilter();
+
+    // this.#clearFilmsList(this._filmPresentersTopRated, this._topRatedFilmsContainer);
+    // this.#clearFilmsList(this._filmPresentersMostCommented, this._mostCommentedFilmsContainer);
+    this.#addStatisticsChart(this._mainContainer, this.films);
+    this._isStatsRendered = true;
+    this._isFilmsRendered = false;
   }
 }

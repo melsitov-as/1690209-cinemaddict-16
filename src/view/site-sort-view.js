@@ -35,6 +35,4 @@ export default class SiteSortView extends AbstractView {
 
     return result;
   }
-
-
 }

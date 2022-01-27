@@ -4,6 +4,7 @@ import SitePopupCommentView from '../view/site-popup-comment-view.js';
 import PopupPresenter from './popup-presenter.js';
 import {removeElement, replaceElement, renderBeforeEnd } from '../render.js';
 import { UpdateType, UserAction } from '../const.js';
+import dayjs from 'dayjs';
 
 export default class MoviePresenter {
   #film = null;
@@ -117,7 +118,7 @@ export default class MoviePresenter {
     this._changeData(
       UserAction.UPDATE_FILM,
       UpdateType.MINOR,
-      Object.assign({}, this.#film, { isWatched: !this.#film.isWatched }));
+      Object.assign({}, this.#film, { isWatched: !this.#film.isWatched }, {dateWatched: this.#film.dateWatched = dayjs()}));
   }
 
   #handleFavoriteClick = () => {
