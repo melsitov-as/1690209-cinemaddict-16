@@ -15,6 +15,7 @@ export default class StatisticsChartPresenter {
   #watchedFilms = null;
   #gap = 0;
   #toCount = [];
+  #mainElement = document.querySelector('.main');
 
   constructor(container, films) {
     this.#container = container;
@@ -31,6 +32,17 @@ export default class StatisticsChartPresenter {
     this.#statisticsView.setIntervalHandler();
   }
 
+  #setIsChecked = () => {
+    const inputs = this.#mainElement.querySelectorAll('.statistic__filters-input');
+    inputs.forEach((input) => {
+      if (input.id === this.#currentInterval.id) {
+        input.checked = true;
+      } else {
+        input.checked = false;
+      }
+    });
+  }
+
   get films() {
     return this.#films;
   }
@@ -44,6 +56,7 @@ export default class StatisticsChartPresenter {
     this.#workOnIntervals();
     this.#filterByInterval();
     this.#rerenderStatisticsChart();
+    this.#setIsChecked();
   }
 
   #workOnIntervals = () => {

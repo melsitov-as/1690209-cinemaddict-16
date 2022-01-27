@@ -66,7 +66,6 @@ const renderFilmsChart = (statistics, statisticCtx) => new Chart(statisticCtx, {
   },
 });
 
-
 const createStatisticsTemplate = (statistics) => `<section class="statistic">
     <p class="statistic__rank">
       Your rank
@@ -134,6 +133,7 @@ export default class StatisticsView extends AbstractView {
 
   #intervalHandler = (evt) => {
     this.#getCurrentInterval(evt.target);
+    evt.target.checked = true;
   }
 
   setIntervalHandler = () => {
