@@ -1,4 +1,7 @@
+
 import { getDurationInHandM } from './common.js';
+
+const MINUTES_PER_HOUR = 60;
 
 let drama = 0;
 let mystery = 0;
@@ -135,3 +138,144 @@ export const getStatistics = (data) => {
   return statistics;
 };
 
+/**
+ *
+ * @typedef {Object} CompleteStatistics
+ * @property {number} allFilmsWatched
+ * @property {number} totalDurationH
+ * @property {number} totalDurationM
+ * @property {string} topGenre
+ * @property {number} drama
+ * @property {number} mystery
+ * @property {number} comedy
+ * @property {number} cartoon
+ * @property {number} western
+ * @property {number} musical
+ */
+
+/**
+ * @typedef {object} GenreCounts
+ * @property {number} drama
+ * @property {number} mystery
+ * @property {number} comedy
+ * @property {number} cartoon
+ * @property {number} western
+ * @property {number} musical
+ */
+
+/**
+ *
+ * @typedef {object} StatisticsInProgress
+ * @property {number} filmCount
+ * @property {number} totalDuration
+ * @property {GenreCounts} genreCounts
+ */
+
+/**
+ * @typedef {object} FilmCard
+ * @property {number} totalDuration
+ * @property {string[]} genre
+ * @property {boolean} isWatched
+ * @property {import('dayjs').Dayjs} dateWatched
+ */
+/**
+ * @callback Reducer
+ * @param {StatisticsInProgress} currentStatistics
+ * @param {FilmCard} film
+ * @returns {StatisticsInProgress}
+ */
+
+
+/**
+ *
+ * @param {GenreCounts} genreCounts
+ * @param {string} genre
+ * @returns {GenreCounts}
+ */
+const collectGenreCounts = (genreCounts, genre)=>({...genreCounts, [genre]: (genreCounts[genre] +1) || 1});
+
+/**
+ *
+ * @param {import('dayjs').Dayjs | 'all'} rangeBegin
+ * @param {import('dayjs').Dayjs} dateWatched
+ * @returns {boolean}
+ */
+const isDateWatchedWithinRange = (rangeBegin, dateWatched)=>rangeBegin === 'all' || rangeBegin.diff(dateWatched)<0;
+
+/**
+ *
+ * @returns {StatisticsInProgress}
+ */
+
+const getInitialValue = ()=>( {
+  allFilmsWatched: 0,
+  totalDurationH: 0,
+  totalDurationM: 0,
+  topGenre: '',
+  drama: 0,
+  mystery: 0,
+  comedy: 0,
+  cartoon: 0,
+  western: 0,
+  musical: 0,
+});
+
+/**
+ *
+ * @param {[string,number]} accumulator
+ * @param {[string,number]} entry
+ * @returns {[string,number]}
+ */
+const takeMax = (accumulator, entry)=>accumulator[1]>entry[1]?accumulator:entry;
+
+/**
+ *
+ * @param {GenreCounts} genreCounts
+ * @returns {string}
+ */
+const getTopGenre2 = (genreCounts)=>Object.entries(genreCounts).reduce(takeMax, ['',0]);
+
+
+/**
+ * @param {import('dayjs').Dayjs | 'all'} rangeBegin
+ *
+ * @returns {Reducer}
+ */
+
+const collectFilmStatistics = (rangeBegin)=>(currentStatistics, film)=>{
+  const {isWatched, dateWatched, genre, totalDuration} = film;
+  if(!isWatched || !isDateWatchedWithinRange(rangeBegin,dateWatched)){
+    return currentStatistics;
+  }
+  return {
+    filmCount: currentStatistics.filmCount+1,
+    genreCounts: genre.reduce(collectGenreCounts, currentStatistics.genreCounts),
+    totalDuration: currentStatistics.totalDuration + totalDuration
+  };
+};
+
+/**
+ *
+ * @param {StatisticsInProgress} statisticsInProgress
+ * @returns {CompleteStatistics}
+ */
+const transform = (statisticsInProgress)=>({
+  allFilmsWatched: statisticsInProgress.filmCount,
+  topGenre: getTopGenre2(statisticsInProgress.genreCounts),
+  totalDurationH: Math.floor(statisticsInProgress.totalDuration/MINUTES_PER_HOUR),
+  totalDurationM: Math.floor(statisticsInProgress.totalDuration%MINUTES_PER_HOUR),
+
+  ...statisticsInProgress.genreCounts
+});
+
+/**
+ *
+ * @param {FilmCard[]} films
+ * @param {import('dayjs').Dayjs | 'all'} date
+ */
+export const getStatisticsAtOnce = (films, date)=>transform(
+  films.reduce(
+    collectFilmStatistics(date),
+    getInitialValue(),
+  ),
+);
