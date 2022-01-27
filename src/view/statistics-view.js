@@ -132,13 +132,10 @@ export default class StatisticsView extends AbstractView {
   }
 
   #intervalHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.click();
     this.#getCurrentInterval(evt.target);
   }
 
-  setIntervalHandler = (callback) => {
-    this._callback.click = callback;
+  setIntervalHandler = () => {
     const inputs = this.element.querySelectorAll('.statistic__filters-input');
     inputs.forEach((input) => input.addEventListener('click', this.#intervalHandler));
   }

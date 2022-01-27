@@ -1,6 +1,5 @@
 import { getDurationInHandM } from './common.js';
 
-const allGenres = [];
 let drama = 0;
 let mystery = 0;
 let comedy = 0;
@@ -8,10 +7,17 @@ let cartoon = 0;
 let western = 0;
 let musical = 0;
 
+const allGenres = [];
+
+
 const getAllFilmsWatched = (data) => {
   const filmsWatched = data.filter((item) => item.isWatched);
 
-  return filmsWatched.length;
+  if (filmsWatched.length > 0) {
+    return filmsWatched.length;
+  } else if (filmsWatched.length === 0) {
+    return 0;
+  }
 };
 
 const getTotalDuration =(data) => {
@@ -23,6 +29,15 @@ const getTotalDuration =(data) => {
 };
 
 const countGenres = (item) => {
+  const genresWithCounts = {
+    drama: 0,
+    mystery: 0,
+    comedy: 0,
+    cartoon: 0,
+    western: 0,
+    musical: 0
+  };
+
   switch (item) {
     case ' Drama':
       drama += 1;
@@ -41,15 +56,18 @@ const countGenres = (item) => {
       break;
     case ' Musical':
       musical += 1;
+
+      return genresWithCounts;
   }
 };
+
 
 const countEachGenre = (data) => {
   data.forEach((item) => allGenres.push(...item.genre));
   allGenres.forEach((item) => countGenres(item));
 };
 
-export const countTopGenre = (data) => {
+const countTopGenre = (data) => {
   let topGenreCount = 0;
   countEachGenre(data);
   topGenreCount = Math.max(drama, mystery, comedy, cartoon, western, musical);
@@ -57,7 +75,7 @@ export const countTopGenre = (data) => {
   return topGenreCount;
 };
 
-export const getTopGenre = (data) => {
+const getTopGenre = (data) => {
   const topGenreCount = countTopGenre(data);
   let topGenre = '';
   switch (topGenreCount) {
