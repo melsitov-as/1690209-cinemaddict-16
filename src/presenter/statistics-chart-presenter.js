@@ -32,6 +32,10 @@ export default class StatisticsChartPresenter {
     this.#statisticsView.setIntervalHandler();
   }
 
+  get films() {
+    return this.#films;
+  }
+
   #setIsChecked = () => {
     const inputs = this.#mainElement.querySelectorAll('.statistic__filters-input');
     inputs.forEach((input) => {
@@ -41,10 +45,6 @@ export default class StatisticsChartPresenter {
         input.checked = false;
       }
     });
-  }
-
-  get films() {
-    return this.#films;
   }
 
   destroy() {
