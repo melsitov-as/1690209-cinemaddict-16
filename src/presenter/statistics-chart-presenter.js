@@ -29,7 +29,6 @@ export default class StatisticsChartPresenter {
     renderBeforeEnd(this.#container, this.#statisticsView);
     this.#statisticsView.setFilmsChart();
     this.#statisticsView.setIntervalHandler();
-    this.#resetStatistics();
   }
 
   get films() {
@@ -85,11 +84,5 @@ export default class StatisticsChartPresenter {
     this.#statisticsView = new StatisticsView(BAR_HEIGHT, this.#statistics, this.#getCurrentInterval);
     this.init();
     this.#watchedFilms = this.#getWatchedFilms(this.#films);
-    this.#resetStatistics();
-  }
-
-  #resetStatistics = () => {
-    console.log(this.#statistics);
-    this.#statistics.drama = -10;
   }
 }

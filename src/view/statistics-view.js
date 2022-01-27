@@ -66,6 +66,7 @@ const renderFilmsChart = (statistics, statisticCtx) => new Chart(statisticCtx, {
   },
 });
 
+
 const createStatisticsTemplate = (statistics) => `<section class="statistic">
     <p class="statistic__rank">
       Your rank

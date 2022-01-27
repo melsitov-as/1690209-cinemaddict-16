@@ -7,7 +7,7 @@ let cartoon = 0;
 let western = 0;
 let musical = 0;
 
-const allGenres = [];
+let allGenres = [];
 
 
 const getAllFilmsWatched = (data) => {
@@ -102,7 +102,7 @@ const getTopGenre = (data) => {
   return topGenre;
 };
 
-export const getStatistics = (data) => {
+const generateStatistics = (data) => {
   countEachGenre(data);
   const totalDuration = getTotalDuration(data);
   return {
@@ -117,5 +117,21 @@ export const getStatistics = (data) => {
     western: western,
     musical: musical,
   };
+};
+
+const reset = () => {
+  allGenres = [];
+  drama = 0;
+  mystery = 0;
+  comedy = 0;
+  cartoon = 0;
+  western = 0;
+  musical = 0;
+};
+
+export const getStatistics = (data) => {
+  const statistics = generateStatistics(data);
+  reset();
+  return statistics;
 };
 
